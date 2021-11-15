@@ -18,6 +18,21 @@ class Cell:
             self.state = value
 
     def getState(self):
-        return state
+        return self.state
+
+class LineRule:
+    
+    def __init__(self, Rules, LineLength, FilledCells, VoidCells, MinSpace, isEmpty, OuterRules, InnerRules):
+        self.Rules = Rules
+        self.LineLength = 5
+        self.FilledCells = sum(Rules)
+        self.VoidCells = LineLength - FilledCells
+        self.MinSpace = FilledCells + (len(Rules)-1)
+        self.isEmpty = False
+        self.OuterRules = 1
+        if(len(Rules) >= 3):
+            self.OuterRules = 2
+        self.InnerRules = len(Rules) - OuterRules
+     
 
 
