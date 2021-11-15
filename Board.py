@@ -13,8 +13,11 @@ class Cell:
         self.columnNumber = columnNumber
         self.state = CellState(state)
 
-    def changeState(self, value):
+    def setState(self, value):
         if(value != self.state):
             self.state = value
+
+    def getState(self):
+        return state
 
 
