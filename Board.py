@@ -20,4 +20,3 @@ class Cell:
     def getState(self):
         return state
 
-
