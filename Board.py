@@ -44,6 +44,50 @@ class LineRule:
         return self.isEmpty or (self.isLegal() and self.MinSpace >= self.LineLength)
     
     
+
+class Line:
+
+    def __init__(self, Cells):
+        self.Cells = Cells
+        self.Length = Cells.length
+
+    def fillGap(self, gapSize):
+        cells = []
+
+        for i in range(0, gapSize):
+            cells.append(Cell(0))
+        
+        return cells
     
-     
+    def fillBlock(self, blockSize):
+        cells = []
+
+        for i in range(0, blockSize):
+            cells.append(Cell(1))
+
+        return cells
+
+    def computeBlocks(self):
+
+        lineBlocks = []
+
+        nextBlock = 0
+        blockActive = False
+
+        for i in range(0, self.Length):
+
+            if(self.Cells[i].getState() == 1):
+
+                if blockActive:
+                    lineBlocks[nextBlock - 1] += 1
+
+                else:
+                    lineBlocks.append(1)
+                    nextBlock += 1
+                    blockActive = True
+            
+
+
+
+
 
