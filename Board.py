@@ -1,3 +1,4 @@
+from _typeshed import Self
 from enum import Enum
 class CellState(Enum):
     UNKNOWN = 2
@@ -28,10 +29,21 @@ class LineRule:
         self.FilledCells = sum(Rules)
         self.VoidCells = LineLength - FilledCells
         self.MinSpace = FilledCells + (len(Rules)-1)
-        self.isEmpty = False
         self.OuterRules = 1
         if(len(Rules) >= 3):
             self.OuterRules = 2
         self.InnerRules = len(Rules) - OuterRules
+        self.isEmpty = False
+        if(len(Rules) <= 0):
+            self.isEmpty = True
+    
+    def isLegal(self):
+        return self.MinSpace <= self.LineLength
+    
+    def isTrivial(self):
+        return self.isEmpty or (self.isLegal() and self.MinSpace >= self.LineLength)
+    
+    
+    
      
 
