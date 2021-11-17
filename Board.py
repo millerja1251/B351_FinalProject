@@ -43,7 +43,26 @@ class LineRule:
     def isTrivial(self):
         return self.isEmpty or (self.isLegal() and self.MinSpace >= self.LineLength)
     
-    
+    def getTrivialSolution(self):
+
+        if (not self.isTrivial()):
+                return None
+
+        if(self.isEmpty):
+            return PicrossLine(LineLength, PicrossCellState.Void)
+
+        solution = []
+        lineIndex = 0
+        for i in range(len(self.Rules)):
+            for j in range(len(self.Rules[i])):
+                solution[lineIndex] = CellState(1)
+                lineIndex += 1
+            
+            if (i < len(self.Rules) - 1):
+                solution[lineIndex] = CellState(0)
+                lineIndex += 1
+            
+            return PicrossLine(solution)
     
      
 
