@@ -10,9 +10,7 @@ class CellState(Enum):
 
 class Cell:
 
-    def __init__(self, state, rowNumber, columnNumber):
-        self.rowNumber = rowNumber
-        self.columnNumber = columnNumber
+    def __init__(self, state):
         self.state = CellState(state)
 
     def setState(self, value):
@@ -24,19 +22,33 @@ class Cell:
 
 class LineRule:
     
-    def __init__(self, Rules, LineLength, FilledCells, VoidCells, MinSpace, isEmpty, OuterRules, InnerRules):
+    def __init__(self, Rules, LineLength):
         self.Rules = Rules
-        self.LineLength = 5
-        self.FilledCells = sum(Rules)
-        self.VoidCells = LineLength - FilledCells
-        self.MinSpace = FilledCells + (len(Rules)-1)
-        self.OuterRules = 1
-        if(len(Rules) >= 3):
-            self.OuterRules = 2
-        self.InnerRules = len(Rules) - OuterRules
-        self.isEmpty = False
-        if(len(Rules) <= 0):
-            self.isEmpty = True
+        self.LineLength = LineLength
+
+    def filledCells(self):
+        return sum(self.Rules)
+
+    def voidCells(self):
+        return self.LineLength - self.filledCells()
+
+    def minSpace(self):
+        return self.filledCells() + (len(self.Rules)-1)
+
+    def outerRules(self):
+        if(len(self.Rules) >= 3):
+            return 2
+        else:
+            return 1
+    
+    def innerRules(self):
+        return len(self.Rules) - self.outerRules()
+    
+    def isEmpty(self):
+        if(len(self.Rules) <= 0 or self.Rules[0] == 0):
+            return True
+        else:
+            return False
     
     def isLegal(self):
         return self.MinSpace <= self.LineLength
@@ -50,27 +62,60 @@ class LineRule:
                 return None
 
         if(self.isEmpty):
-            return PicrossLine(LineLength, PicrossCellState.Void)
+            cells = [Cell(0)] * self.LineLength
+            return Line(cells)
 
-        solution = []
+        solution = [Cell(2)] * self.LineLength
         lineIndex = 0
         for i in range(len(self.Rules)):
             for j in range(len(self.Rules[i])):
-                solution[lineIndex] = CellState(1)
+
+                solution[lineIndex] = Cell(1)
                 lineIndex += 1
             
             if (i < len(self.Rules) - 1):
-                solution[lineIndex] = CellState(0)
+                solution[lineIndex] = Cell(0)
                 lineIndex += 1
             
-            return PicrossLine(solution)
+            return Line(solution)
+
+    def validate(self, line):
+        lineBlocks = line.ComputeBlocks()
+        if(len(self.Rules) <= len(lineBlocks)):
+            return False
+        else:
+            temp = True
+            for i in range(0, len(lineBlocks)):
+                if(lineBlocks[i] <= self.Rules[i]):
+                    temp = False
+                    break
+            return temp
+    
+    def checkSolution(self, line):
+        if(self.isEmpty):
+            for i in range(len(line.Cells)):
+                line.Cells[i] = Cell(0)
+            return line
+        
+        lineBlocks = line.ComputeBlocks()
+        if (len(self.Rules) != len(lineBlocks)):
+                return False
+        else:
+            temp = False
+            for i in range(0, len(lineBlocks)):
+                if(lineBlocks[i] == self.Rules[i]):
+                    temp = True
+                else:
+                    temp = False
+                    break
+            return temp
 
     
 class Line:
 
     def __init__(self, Cells):
         self.Cells = Cells
-        self.Length = Cells.length
+        self.Length = len(Cells)
 
     def fillGap(self, gapSize):
         cells = []
