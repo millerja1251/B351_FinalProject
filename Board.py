@@ -1,5 +1,6 @@
 from _typeshed import Self
 from enum import Enum
+
 class CellState(Enum):
     UNKNOWN = 2
     VOID = 0
@@ -63,7 +64,7 @@ class LineRule:
                 lineIndex += 1
             
             return PicrossLine(solution)
-            
+
     
 class Line:
 
@@ -105,6 +106,49 @@ class Line:
                     lineBlocks.append(1)
                     nextBlock += 1
                     blockActive = True
-            
+            else:
 
+                if blockActive:
+                    blockActive = False
+            
+        return lineBlocks
+
+    def isCandidateSolutionFor(self, activeLine):
+
+        return None
+
+    def And(self, otherLine):
+
+        if self.Length != otherLine.Length:
+            raise Exception("The Lines don't have same length")
+        
+        for i in range(0, self.Length):
+            localState = self.Cells[i].getState()
+            otherState = otherLine.Cells[i].getState()
+            self.Cells[i] = localState.And(otherState)
+    
+    def Print(self):
+        lineString = ""
+
+        for cells in self.Cells:
+
+            if cells.getState() == 2:
+                lineString + "?"
+            elif cells.getState() == 0:
+                lineString + " "
+            else:
+                lineString + " ■"
+        
+        lineString + "\n"
+        return lineString
+
+class LineConstuctor:
+
+    def __init__(self, length, state):
+
+        cells = []
+
+        for i in range(0, length):
+            cells[i] = Cell(state)
+        
 
