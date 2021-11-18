@@ -51,10 +51,10 @@ class LineRule:
             return False
     
     def isLegal(self):
-        return self.MinSpace <= self.LineLength
+        return self.minSpace() <= self.LineLength
     
     def isTrivial(self):
-        return self.isEmpty or (self.isLegal() and self.MinSpace >= self.LineLength)
+        return self.isEmpty or (self.isLegal() and self.minSpace() >= self.LineLength)
     
     def getTrivialSolution(self):
 
@@ -62,19 +62,19 @@ class LineRule:
                 return None
 
         if(self.isEmpty):
-            cells = [Cell(0)] * self.LineLength
+            cells = [Cell(CellState.VOID)] * self.LineLength
             return Line(cells)
 
-        solution = [Cell(2)] * self.LineLength
+        solution = [Cell(CellState.UNKNOWN)] * self.LineLength
         lineIndex = 0
         for i in range(len(self.Rules)):
             for j in range(len(self.Rules[i])):
 
-                solution[lineIndex] = Cell(1)
+                solution[lineIndex] = Cell(CellState.FILLED)
                 lineIndex += 1
             
             if (i < len(self.Rules) - 1):
-                solution[lineIndex] = Cell(0)
+                solution[lineIndex] = Cell(CellState.VOID)
                 lineIndex += 1
             
             return Line(solution)
@@ -94,7 +94,7 @@ class LineRule:
     def checkSolution(self, line):
         if(self.isEmpty):
             for i in range(len(line.Cells)):
-                line.Cells[i] = Cell(0)
+                line.Cells[i] = Cell(CellState.VOID)
             return line
         
         lineBlocks = line.ComputeBlocks()
@@ -121,7 +121,7 @@ class Line:
         cells = []
 
         for i in range(0, gapSize):
-            cells.append(Cell(0))
+            cells.append(Cell(CellState.VOID))
         
         return cells
     
@@ -129,7 +129,7 @@ class Line:
         cells = []
 
         for i in range(0, blockSize):
-            cells.append(Cell(1))
+            cells.append(Cell(CellState.FILLED))
 
         return cells
 
