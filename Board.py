@@ -1,5 +1,6 @@
 from _typeshed import Self
 from enum import Enum
+import enum
 
 class CellState(Enum):
     UNKNOWN = 2
@@ -289,5 +290,61 @@ class Line:
         lineString + "\n"
         return lineString
 
+
+class LineType(Enum):
+    COLUMN = 0
+    ROW = 1
+
+class ActiveLine(Line):
+    def __init__(self, Cells, Rules, Type, Index):
+        self.Type = Type
+        self.Index = Index
+        self.Rules = Rules
+        self.Cells = Cells
+        self.CandidateSolutions = Rules.GenerateCandidates()
+    
+    def isValid(self):
+        if len(self.CandidateSolutions) > 0:
+            return True
+        return False
+
+    def isSet(self):
+        for cell in self.Cells:
+            if(cell.getState() == CellState.UNKNOWN):
+                return False
+        return True
+
+    def isSolved(self):
+        return self.Rules.checkSolution(self)
+    
+    def ReviewCandidates(self):
+        temp = []
+        for i in self.CandidateSolutions:
+            x = lambda a : a.IsCandidateSolutionFor(self)
+            if(x == True):
+                temp.append(i)
         
+        self.CandidateSolutions = temp           
+
+    def GetDeterminableCells(self):
+        if (self.isValid()):
+            return Line(len(self.Cells), CellState.UNKNOWN)
+
+        determinableCells = Line(self.CandidateSolutions[0])
+        for candidateSolution in self.CandidateSolutions[1:]:
+            determinableCells.And(candidateSolution)
+
+            return determinableCells
+    
+    def ApplyLine(self, line):
+        if(line.Length != self.Length):
+            raise ValueError("Lines must be of the same length")
+
+        for i in range(0, self.Length + 1):
+            newState = line.Cells[i].getState()
+            if(newState != CellState.UNKNOWN):
+                self.Cells[i] = newState
+        
+        self.ReviewCandidates()
+
 
