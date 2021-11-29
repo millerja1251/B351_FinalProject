@@ -77,7 +77,7 @@ class LineRule:
                 solution[lineIndex] = Cell(CellState.VOID)
                 lineIndex += 1
             
-            return Line(solution)
+        return Line(solution)
 
     def validate(self, line):
         lineBlocks = line.ComputeBlocks()
@@ -109,7 +109,68 @@ class LineRule:
                     temp = False
                     break
             return temp
+    
+    def GenerateCandidates(self):
+        if (self.isTrivial()):
+            return self.getTrivialSolution()
+        gapRules = self.GetGapRules()
+        generatedGaps = self.GenerateGapStructures(gapRules, self.voidCells())
+        return self.GenerateLinesFromGapStructures(generatedGaps)
 
+    def GetGapRules(self):
+        voidsToAllocate = self.LineLength - self.filledCells() - (self.innerRules() + 1)
+        gapRules = []
+        
+        #Left outer gap
+        newTuple = (0, voidsToAllocate)
+        gapRules.append(newTuple)
+
+        #Inner gapStructures
+        for i in range((self.innerRules() + 1)):
+            newTuple = (1, 1 + voidsToAllocate)
+            gapRules.append(newTuple)
+
+        #Right outer gap
+        newTuple = (0, voidsToAllocate)
+        gapRules.append(newTuple)
+
+        return gapRules
+
+    def GenerateGapStructures(self, gapRules, gapsToBeAllocated):
+        sum = 0
+        for i in gapRules:
+            sum += i[1]
+        if sum < gapsToBeAllocated:
+            return None
+
+        gapStructures = []
+        headRule = gapRules[0]
+        headValues = range(headRule[0], (headRule[1] - headRule[0]) + 2)
+
+        for headValue in headValues:
+        
+            innerGapRules = gapRules[1:]
+            nextGapsToBeAllocated = gapsToBeAllocated - headValue
+            if (nextGapsToBeAllocated >= 0):
+                if (len(innerGapRules) == 1):
+                    gapStructure = [headValue, nextGapsToBeAllocated]
+                    gapStructures.append(gapStructure)
+                
+                else:
+                    innerGaps = self.GenerateGapStructures(innerGapRules, nextGapsToBeAllocated)
+                    if (innerGaps != None):
+                        for innerGap in innerGaps:
+                            gapStructure = [headValue]
+                            gapStructure.extend(innerGap)
+                            gapStructures.append(gapStructure)
+        return gapStructures
+    
+    def GenerateLinesFromGapStructures(self, gapStructures):
+        lines = []
+        for gapStructure in gapStructures:
+            lines.append(Line(self.Rules, gapStructure))
+        
+        return lines
     
 class Line:
 
