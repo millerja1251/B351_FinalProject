@@ -175,47 +175,48 @@ class LineRule:
     
 class Line:
 
-    def __init__(self, Cells):
-        self.Cells = Cells
-        self.Length = len(Cells)
+    def __init__(self, Cells, length, state, cells, cellStates, copyLine, blocksRule, gap, determiningNumber):
 
-    def __init__(self, length, state):
-        cells = []
+        self.Cells = []
 
-        for i in range(0, length):
-            cells[i] = Cell(state)
+        if determiningNumber == 1:
+            self.Cells = Cells
+            self.Length = len(Cells)
+
+        elif determiningNumber == 2:
+            cellList = []
+
+            for i in range(0, length):
+                cellList[i] = Cell(state)
         
-        self.Cells = cells
-    
-    def __init__(self, cells):
-        self.Cells = cells
+            self.Cells = cellList
 
-    def __init__(self, cellStates):
-        Cells = []
-        for i in range(0, len(cellStates) + 1):
-            Cells[i] = Cell(cellStates[i])
-    
-    def __init__(self, copyLine):
-        Cells = []
+        elif determiningNumber == 3:
+            self.Cells = cells
 
-        for i in range(0, len(copyLine)):
-            state = copyLine[i].getState()
-            Cells[i] = Cell(state)
+        elif determiningNumber == 4:
+            for i in range(0, len(cellStates) + 1):
+                self.Cells[i] = Cell(cellStates[i])
 
-    def __init__(self, blocksRule, gap):
+        elif determiningNumber == 5:
+            for i in range(0, len(copyLine)):
+                state = copyLine[i].getState()
+                self.Cells[i] = Cell(state)
 
-        if len(blocksRule) != len(gap) + 1:
-            raise ValueError("Gap length must be greater than blocksRule by 1")
+        elif determiningNumber == 6:
 
-        cells = []
-        
-        for i in range(0, len(blocksRule)):
-            cells.append(self.fillGap(gap[i]))
-            cells.append(self.fillBlock(blocksRule[i]))
+            if len(blocksRule) != len(gap) + 1:
+                raise ValueError("Gap length must be greater than blocksRule by 1")
 
-        cells.append(self.fillGap(gap[len(gap) - 1]))
+            cellList = []
+            
+            for i in range(0, len(blocksRule)):
+                cellList.append(self.fillGap(gap[i]))
+                cellList.append(self.fillBlock(blocksRule[i]))
 
-        self.Cells = cells
+            cellList.append(self.fillGap(gap[len(gap) - 1]))
+
+            self.Cells = cellList
 
 
     def fillGap(self, gapSize):
@@ -261,9 +262,17 @@ class Line:
 
     def isCandidateSolutionFor(self, activeLine):
 
+        trueList = []
+
         for i in range(0, activeLine.Length - 1):
-            if (lambda lineIndex: activeLine.Cells[lineIndex].getState() != 2):
-                if
+            if activeLine.Cells[i] == CellState.UNKNOWN:
+                return False
+            if self.Cells[i].getState() == activeLine.Cells[i].getState():
+                trueList.append(True)
+        
+        if all(trueList):
+            return True
+
 
     def And(self, otherLine):
 
