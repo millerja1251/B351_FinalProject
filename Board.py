@@ -117,6 +117,45 @@ class Line:
         self.Cells = Cells
         self.Length = len(Cells)
 
+    def __init__(self, length, state):
+        cells = []
+
+        for i in range(0, length):
+            cells[i] = Cell(state)
+        
+        self.Cells = cells
+    
+    def __init__(self, cells):
+        self.Cells = cells
+
+    def __init__(self, cellStates):
+        Cells = []
+        for i in range(0, len(cellStates) + 1):
+            Cells[i] = Cell(cellStates[i])
+    
+    def __init__(self, copyLine):
+        Cells = []
+
+        for i in range(0, len(copyLine)):
+            state = copyLine[i].getState()
+            Cells[i] = Cell(state)
+
+    def __init__(self, blocksRule, gap):
+
+        if len(blocksRule) != len(gap) + 1:
+            raise ValueError("Gap length must be greater than blocksRule by 1")
+
+        cells = []
+        
+        for i in range(0, len(blocksRule)):
+            cells.append(self.fillGap(gap[i]))
+            cells.append(self.fillBlock(blocksRule[i]))
+
+        cells.append(self.fillGap(gap[len(gap) - 1]))
+
+        self.Cells = cells
+
+
     def fillGap(self, gapSize):
         cells = []
 
@@ -160,7 +199,9 @@ class Line:
 
     def isCandidateSolutionFor(self, activeLine):
 
-        return None
+        for i in range(0, activeLine.Length - 1):
+            if (lambda lineIndex: activeLine.Cells[lineIndex].getState() != 2):
+                if
 
     def And(self, otherLine):
 
@@ -187,13 +228,5 @@ class Line:
         lineString + "\n"
         return lineString
 
-class LineConstuctor:
-
-    def __init__(self, length, state):
-
-        cells = []
-
-        for i in range(0, length):
-            cells[i] = Cell(state)
         
 
