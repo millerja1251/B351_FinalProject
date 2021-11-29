@@ -177,6 +177,7 @@ class Line:
     def __init__(self, Cells, length, state, cells, cellStates, copyLine, blocksRule, gap, determiningNumber):
 
         self.Cells = []
+        self.Length = len(self.Cells)
 
         if determiningNumber == 1:
             self.Cells = Cells
@@ -297,6 +298,56 @@ class Line:
         
         lineString + "\n"
         return lineString
+
+
+
+
+
+def ourAlgorithm(board):
+
+    for activeLines in board.getColumns():
+
+        rules = activeLines.getRule()
+        addedRule = 0
+
+        for rule in rules:
+            addedRule += rule
+            addedRule + 1
+        
+        addedRule - 1
+
+        difference = board.getRowCount() - addedRule
+
+        candidateRules = []
+
+        for rule in rules:
+            if rule > difference:
+                candidateRules.append(rule)
+
+        for rule in candidateRules:
+            for cell in range(0, len(activeLines.Cells)):
+                if rule == 
+
+
+    for activeLines in board.getRows():
+
+        rules = activeLines.getRule()
+        addedRule = 0
+
+        for rule in rules:
+            addedRule += rule
+            addedRule + 1
+        
+        addedRule - 1
+
+        difference = board.getColumnCount() - addedRule
+
+        candidateRules = []
+
+        for rule in rules:
+            if rule > difference:
+                candidateRules.append(rule)
+
 
         
 
