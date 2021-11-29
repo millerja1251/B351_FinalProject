@@ -51,10 +51,10 @@ class LineRule:
             return False
     
     def isLegal(self):
-        return self.MinSpace <= self.LineLength
+        return self.minSpace() <= self.LineLength
     
     def isTrivial(self):
-        return self.isEmpty or (self.isLegal() and self.MinSpace >= self.LineLength)
+        return self.isEmpty or (self.isLegal() and self.minSpace() >= self.LineLength)
     
     def getTrivialSolution(self):
 
@@ -62,22 +62,22 @@ class LineRule:
                 return None
 
         if(self.isEmpty):
-            cells = [Cell(0)] * self.LineLength
+            cells = [Cell(CellState.VOID)] * self.LineLength
             return Line(cells)
 
-        solution = [Cell(2)] * self.LineLength
+        solution = [Cell(CellState.UNKNOWN)] * self.LineLength
         lineIndex = 0
         for i in range(len(self.Rules)):
             for j in range(len(self.Rules[i])):
 
-                solution[lineIndex] = Cell(1)
+                solution[lineIndex] = Cell(CellState.FILLED)
                 lineIndex += 1
             
             if (i < len(self.Rules) - 1):
-                solution[lineIndex] = Cell(0)
+                solution[lineIndex] = Cell(CellState.VOID)
                 lineIndex += 1
             
-            return Line(solution)
+        return Line(solution)
 
     def validate(self, line):
         lineBlocks = line.ComputeBlocks()
@@ -94,7 +94,7 @@ class LineRule:
     def checkSolution(self, line):
         if(self.isEmpty):
             for i in range(len(line.Cells)):
-                line.Cells[i] = Cell(0)
+                line.Cells[i] = Cell(CellState.VOID)
             return line
         
         lineBlocks = line.ComputeBlocks()
@@ -109,7 +109,68 @@ class LineRule:
                     temp = False
                     break
             return temp
+    
+    def GenerateCandidates(self):
+        if (self.isTrivial()):
+            return self.getTrivialSolution()
+        gapRules = self.GetGapRules()
+        generatedGaps = self.GenerateGapStructures(gapRules, self.voidCells())
+        return self.GenerateLinesFromGapStructures(generatedGaps)
 
+    def GetGapRules(self):
+        voidsToAllocate = self.LineLength - self.filledCells() - (self.innerRules() + 1)
+        gapRules = []
+        
+        #Left outer gap
+        newTuple = (0, voidsToAllocate)
+        gapRules.append(newTuple)
+
+        #Inner gapStructures
+        for i in range((self.innerRules() + 1)):
+            newTuple = (1, 1 + voidsToAllocate)
+            gapRules.append(newTuple)
+
+        #Right outer gap
+        newTuple = (0, voidsToAllocate)
+        gapRules.append(newTuple)
+
+        return gapRules
+
+    def GenerateGapStructures(self, gapRules, gapsToBeAllocated):
+        sum = 0
+        for i in gapRules:
+            sum += i[1]
+        if sum < gapsToBeAllocated:
+            return None
+
+        gapStructures = []
+        headRule = gapRules[0]
+        headValues = range(headRule[0], (headRule[1] - headRule[0]) + 2)
+
+        for headValue in headValues:
+        
+            innerGapRules = gapRules[1:]
+            nextGapsToBeAllocated = gapsToBeAllocated - headValue
+            if (nextGapsToBeAllocated >= 0):
+                if (len(innerGapRules) == 1):
+                    gapStructure = [headValue, nextGapsToBeAllocated]
+                    gapStructures.append(gapStructure)
+                
+                else:
+                    innerGaps = self.GenerateGapStructures(innerGapRules, nextGapsToBeAllocated)
+                    if (innerGaps != None):
+                        for innerGap in innerGaps:
+                            gapStructure = [headValue]
+                            gapStructure.extend(innerGap)
+                            gapStructures.append(gapStructure)
+        return gapStructures
+    
+    def GenerateLinesFromGapStructures(self, gapStructures):
+        lines = []
+        for gapStructure in gapStructures:
+            lines.append(Line(self.Rules, gapStructure))
+        
+        return lines
     
 class Line:
 
@@ -160,7 +221,7 @@ class Line:
         cells = []
 
         for i in range(0, gapSize):
-            cells.append(Cell(0))
+            cells.append(Cell(CellState.VOID))
         
         return cells
     
@@ -168,7 +229,7 @@ class Line:
         cells = []
 
         for i in range(0, blockSize):
-            cells.append(Cell(1))
+            cells.append(Cell(CellState.FILLED))
 
         return cells
 
