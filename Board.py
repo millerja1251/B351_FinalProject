@@ -260,9 +260,17 @@ class Line:
 
     def isCandidateSolutionFor(self, activeLine):
 
+        trueList = []
+
         for i in range(0, activeLine.Length - 1):
-            if (lambda lineIndex: activeLine.Cells[lineIndex].getState() != 2):
-                if
+            if activeLine.Cells[i] == CellState.UNKNOWN:
+                return False
+            if self.Cells[i].getState() == activeLine.Cells[i].getState():
+                trueList.append(True)
+        
+        if all(trueList):
+            return True
+
 
     def And(self, otherLine):
 
