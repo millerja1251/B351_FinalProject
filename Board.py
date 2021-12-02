@@ -406,4 +406,76 @@ class ActiveLine(Line):
         
         self.ReviewCandidates()
 
+class SpeculativeCallContext:
+    global depth
+    global optionIndex
+    global optionsCount
+
+
+
+class BoardLogic:
+
+    def __init__(self):
+        self.IsValid = True
+        for i in ActiveLines:
+            if i.isValid() == False:
+                self.IsValid = False
+                break
+        self.IsSet = True
+        for i in ActiveLines:
+            if i.isSet() == False:
+                self.IsSet = False
+                break
+
+        self.IsSolved = True
+        for i in ActiveLines:
+            if i.isSolved() == False:
+                self.IsSolved = False
+                break
+    
+    def Solve(self, context = None):
+        if(context == None):
+            SetDeterminableCells()
+        
+        if(self.IsValid and not self.IsSolved):
+            undeterminedLines = []
+            for i in ActiveLines:
+                if i.IsSet == False:
+                    undeterminedLines.append(i)
+        
+        speculationTarget = ActiveLines[0]
+        counter = len(ActiveLines[0].candidateSolutions)
+        for i in ActiveLines[1:]:
+            if len(i.candidateSolutions) < counter:
+                speculationTarget = i
+                counter = len(i.candidateSolutions)
+
+        candidateSolutions = speculationTarget.CandidateSolutions
+        candidatesCount = len(candidateSolutions)
+
+        for i in range(candidatesCount):
+            speculativeBoard = BoardLogic(self)
+            speculativeBoard.SetLineSolution(speculationTarget.Type, speculationTarget.Index, candidateSolutions[i])
+
+            speculativeContext = SpeculativeCallContext()
+            if(context == None or context.depth == None):
+                speculativeContext.depth = 1
+            else:
+                speculativeContext.depth = context.depth + 1
+            speculativeContext.optionIndex = i
+            speculativeContext.optionsCount = candidatesCount
+
+            speculativeBoard.Solve(speculativeContext)
+            if(speculativeBoard.IsValid and speculativeBoard.IsSolved):
+                return speculativeBoard
+        
+    def SetDeterminableCells(self):
+        for i in ActiveLines:
+            i.ApplyLine(i.GetDeterminableCells())
+    
+    def Print(self):
+        for row in Rows:
+            row.Print()
+    
+    
 
