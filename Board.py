@@ -301,55 +301,6 @@ class Line:
         return lineString
 
 
-
-
-
-def ourAlgorithm(board):
-
-    for activeLines in board.getColumns():
-
-        rules = activeLines.getRule()
-        addedRule = 0
-
-        for rule in rules:
-            addedRule += rule
-            addedRule + 1
-        
-        addedRule - 1
-
-        difference = board.getRowCount() - addedRule
-
-        candidateRules = []
-
-        for rule in rules:
-            if rule > difference:
-                candidateRules.append(rule)
-
-        for rule in candidateRules:
-            for cell in range(0, len(activeLines.Cells)):
-                if rule == 
-
-
-    for activeLines in board.getRows():
-
-        rules = activeLines.getRule()
-        addedRule = 0
-
-        for rule in rules:
-            addedRule += rule
-            addedRule + 1
-        
-        addedRule - 1
-
-        difference = board.getColumnCount() - addedRule
-
-        candidateRules = []
-
-        for rule in rules:
-            if rule > difference:
-                candidateRules.append(rule)
-
-
 class LineType(Enum):
     COLUMN = 0
     ROW = 1
@@ -407,3 +358,94 @@ class ActiveLine(Line):
         self.ReviewCandidates()
 
 
+def ourAlgorithm(board):
+
+    for activeLines in board.getColumns():
+
+        rules = activeLines.getRule()
+        addedRule = 0
+
+        for rule in rules:
+            addedRule += rule
+            addedRule + 1
+        
+        addedRule - 1
+
+        difference = board.getRowCount() - addedRule
+
+        candidateRules = []
+
+        for rule in rules:
+            if rule > difference:
+                candidateRules.append(rule)
+
+        if rules[0] == len(activeLines):
+            for cells in activeLines.Cells:
+                cells.setState(CellState.FILLED)
+
+        cellIndex = 0
+
+        for rule in rules:
+
+            if rules in candidateRules:
+                fillAmount = rule - difference
+                
+                if rule == rules[0]:
+                    cellIndex += rule - 1
+                else:
+                    cellIndex += rule
+
+                cellIndexFilledTo = cellIndex - fillAmount
+                
+                for i in range(cellIndex, cellIndexFilledTo):
+                    activeLines.Cells[i].setState(CellState.FILLED)
+
+                cellIndex += 1
+            else:
+                cellIndex += rule + 1
+
+
+    for activeLines in board.getRows():
+
+        rules = activeLines.getRule()
+        addedRule = 0
+
+        for rule in rules:
+            addedRule += rule
+            addedRule + 1
+        
+        addedRule - 1
+
+        difference = board.getColumnCount() - addedRule
+
+        candidateRules = []
+
+        for rule in rules:
+            if rule > difference:
+                candidateRules.append(rule)
+        
+        if rules[0] == len(activeLines):
+            for cells in activeLines.Cells:
+                cells.setState(CellState.FILLED)
+
+        cellIndex = 0
+
+        for rule in rules:
+
+            if rules in candidateRules:
+                
+                fillAmount = rule - difference
+                
+                if rule == rules[0]:
+                    cellIndex += rule - 1
+                else:
+                    cellIndex += rule
+
+                cellIndexFilledTo = cellIndex - fillAmount
+                
+                for i in range(cellIndex, cellIndexFilledTo):
+                    activeLines.Cells[i].setState(CellState.FILLED)
+
+                cellIndex += 1
+            else:
+                cellIndex += rule + 1
