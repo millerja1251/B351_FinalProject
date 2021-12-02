@@ -13,6 +13,8 @@ class Cell:
 
     def __init__(self, state):
         self.state = CellState(state)
+        self.row = 0
+        self.column = 0
 
     def setState(self, value):
         if(value != self.state):
@@ -357,6 +359,64 @@ class ActiveLine(Line):
         
         self.ReviewCandidates()
 
+class Puzzle:
+
+    def __init__(self):
+        self.ColumnCount = 5
+        self.RowCount = 5        
+        self.ColumnRules = [[] for i in range(5)]
+        self.RowRules = [[] for i in range(5)]      
+        
+
+class BoardStructure:
+
+    def __init__(self, puzzle, copySource):
+        if(puzzle != None):
+            self.Puzzle = puzzle
+            self.RowCount = self.Puzzle.RowCount
+            self.ColumnCount = self.Puzzle.ColumnCount
+
+            self.Matrix = [[] for i in range(self.RowCount)]
+            for rowIndex in range(self.RowCount):
+                for columnIndex in range(self.ColumnCount):
+                    self.Matrix[rowIndex, columnIndex] = Cell(CellState.UNKNOWN)
+                    self.Matrix[rowIndex, columnIndex].row = rowIndex
+                    self.Matrix[rowIndex, columnIndex].column = columnIndex
+            
+            self.Columns = GatherColumns()
+            self.Rows = GatherRows()
+            self.ActiveLines = []
+
+            for i in self.Columns:
+                self.ActiveLines.append(i)
+            for i in self.Rows:
+                self.ActiveLines.append(i)
+        
+        if(copySource != None):
+            self.Puzzle = copySource.Puzzle
+            self.RowCount = copySource.RowCount
+            self.ColumnCount = copySource.ColumnCount
+
+            self.Matrix = [[] for i in range(self.RowCount)]
+            for rowIndex in range(self.RowCount):
+                for columnIndex in range(self.ColumnCount):
+                    otherCell = copySource.Matrix[rowIndex, columnIndex]
+                    self.Matrix[rowIndex, columnIndex] = Cell(otherCell.getState())
+                    self.Matrix[rowIndex, columnIndex].row = rowIndex
+                    self.Matrix[rowIndex, columnIndex].column = columnIndex
+            
+            self.Columns = CopyColumns(copySource)
+            self.Rows = CopyRows(copySource)
+            self.ActiveLines = []
+
+            for i in self.Columns:
+                self.ActiveLines.append(i)
+            for i in self.Rows:
+                self.ActiveLines.append(i)
+
+
+
+
 class SpeculativeCallContext:
     global depth
     global optionIndex
@@ -364,7 +424,7 @@ class SpeculativeCallContext:
 
 
 
-class BoardLogic:
+class BoardLogic(BoardStructure):
 
     def __init__(self):
         self.IsValid = True
