@@ -362,7 +362,19 @@ class BoardPuzzle:
         self.ColumnCount = 5
         self.RowCount = 5        
         self.ColumnRules = [[] for i in range(5)]
-        self.RowRules = [[] for i in range(5)]      
+        self.RowRules = [[] for i in range(5)]
+
+    def setColumns(self, list):
+        self.ColumnRules = list
+
+    def setRows(self, list):
+        self.RowRules = list
+
+    def getRows(self):
+        return self.RowRules
+
+    def getColumns(self):
+        return self.ColumnRules      
         
 
 class BoardStructure:
@@ -697,8 +709,6 @@ class BoardLogic(BoardStructure):
 
 
 
-class Solver:
-
-    def __init__(self):
-        pass
+if __name__ == "__main__":
+    puzzle = BoardPuzzle()
 
