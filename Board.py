@@ -487,37 +487,37 @@ class SpeculativeCallContext:
 
 class BoardLogic(BoardStructure):
 
-    def __init__(self):
+    def __init__(self, board):
         self.IsValid = True
-        for i in BoardStructure.ActiveLines:
+        for i in board.ActiveLines:
             if i.isValid() == False:
                 self.IsValid = False
                 break
         self.IsSet = True
-        for i in BoardStructure.ActiveLines:
+        for i in board.ActiveLines:
             if i.isSet() == False:
                 self.IsSet = False
                 break
 
         self.IsSolved = True
-        for i in BoardStructure.ActiveLines:
+        for i in board.ActiveLines:
             if i.isSolved() == False:
                 self.IsSolved = False
                 break
     
     def Solve(self, context = None):
         if(context == None):
-            SetDeterminableCells()
+            self.SetDeterminableCells()
         
         if(self.IsValid and not self.IsSolved):
             undeterminedLines = []
-            for i in BoardStructure.ActiveLines:
+            for i in self.board.ActiveLines:
                 if i.IsSet == False:
                     undeterminedLines.append(i)
         
-        speculationTarget = BoardStructure.ActiveLines[0]
-        counter = len(BoardStructure.ActiveLines[0].candidateSolutions)
-        for i in BoardStructure.ActiveLines[1:]:
+        speculationTarget = self.board.ActiveLines[0]
+        counter = len(self.board.ActiveLines[0].candidateSolutions)
+        for i in self.board.ActiveLines[1:]:
             if len(i.candidateSolutions) < counter:
                 speculationTarget = i
                 counter = len(i.candidateSolutions)
@@ -542,11 +542,11 @@ class BoardLogic(BoardStructure):
                 return speculativeBoard
         
     def SetDeterminableCells(self):
-        for i in BoardStructure.ActiveLines:
+        for i in self.board.ActiveLines:
             i.ApplyLine(i.GetDeterminableCells())
     
     def Print(self):
-        for row in Rows:
+        for row in self.board.Rows:
             row.Print()
     
     
