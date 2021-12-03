@@ -359,7 +359,7 @@ class ActiveLine(Line):
         
         self.ReviewCandidates()
 
-class Puzzle:
+class BoardPuzzle:
 
     def __init__(self):
         self.ColumnCount = 5
@@ -379,12 +379,12 @@ class BoardStructure:
             self.Matrix = [[] for i in range(self.RowCount)]
             for rowIndex in range(self.RowCount):
                 for columnIndex in range(self.ColumnCount):
-                    self.Matrix[rowIndex, columnIndex] = Cell(CellState.UNKNOWN)
-                    self.Matrix[rowIndex, columnIndex].row = rowIndex
-                    self.Matrix[rowIndex, columnIndex].column = columnIndex
+                    self.Matrix[rowIndex][columnIndex] = Cell(CellState.UNKNOWN)
+                    self.Matrix[rowIndex][columnIndex].row = rowIndex
+                    self.Matrix[rowIndex][columnIndex].column = columnIndex
             
-            self.Columns = GatherColumns()
-            self.Rows = GatherRows()
+            self.Columns = self.GatherColumns()
+            self.Rows = self.GatherRows()
             self.ActiveLines = []
 
             for i in self.Columns:
@@ -400,21 +400,82 @@ class BoardStructure:
             self.Matrix = [[] for i in range(self.RowCount)]
             for rowIndex in range(self.RowCount):
                 for columnIndex in range(self.ColumnCount):
-                    otherCell = copySource.Matrix[rowIndex, columnIndex]
-                    self.Matrix[rowIndex, columnIndex] = Cell(otherCell.getState())
-                    self.Matrix[rowIndex, columnIndex].row = rowIndex
-                    self.Matrix[rowIndex, columnIndex].column = columnIndex
+                    otherCell = copySource.Matrix[rowIndex][columnIndex]
+                    self.Matrix[rowIndex][columnIndex] = Cell(otherCell.getState())
+                    self.Matrix[rowIndex][columnIndex].row = rowIndex
+                    self.Matrix[rowIndex][columnIndex].column = columnIndex
             
-            self.Columns = CopyColumns(copySource)
-            self.Rows = CopyRows(copySource)
+            self.Columns = self.CopyColumns(copySource)
+            self.Rows = self.CopyRows(copySource)
             self.ActiveLines = []
 
             for i in self.Columns:
                 self.ActiveLines.append(i)
             for i in self.Rows:
                 self.ActiveLines.append(i)
+    
+    def GatherColumns(self):
+        columns = []
 
+        for columnIndex in range(self.ColumnCount):
+            columnCells = []
+            for rowIndex in range(self.RowCount):
+                columnCells.append(self.Matrix[rowIndex][columnIndex])
+            
+            columnRule = LineRule(self.Puzzle.ColumnRules[columnIndex], self.RowCount)
+            
+            columns.append(ActiveLine(LineType.COLUMN, columnIndex, columnCells, columnRule))
+        
+        return columns
 
+    def GatherRows(self):
+        rows = []
+
+        for rowIndex in range(self.RowCount):
+            rowCells = []
+            for columnIndex in range(self.ColumnCount):
+                rowCells.append(self.Matrix[rowIndex][columnIndex])
+            
+            rowRule = LineRule(self.Puzzle.RowRules[rowIndex], self.ColumnCount)
+
+            rows.append(ActiveLine(LineType.ROW, rowIndex, rowCells, rowRule))
+        
+        return rows
+
+    def CopyColumns(self, copySource):
+        columns = []
+        for columnIndex in range(self.ColumnCount):
+            columnCells = []
+            for rowIndex in range(self.RowCount):
+                columnCells.append(self.Matrix[rowIndex][columnIndex])
+            
+            columns.append(ActiveLine(columnCells, copySource.Columns[columnIndex]))
+        
+        return columns
+    
+    def CopyRows(self, copySource):
+        rows = []
+        for rowIndex in range(self.RowCount):
+            rowCells = []
+            for columnIndex in range(self.ColumnCount):
+                rowCells.append(self.Matrix[rowIndex][columnIndex])
+            
+            rows.append(ActiveLine(rowCells, copySource.Rows[rowIndex]))
+        
+        return rows
+
+    def SetLineSolution(self, lineType, lineIndex, candidateToSet):
+        targetSet = self.Columns
+        if(lineType == LineType.ROW):
+            targetSet = self.Rows
+        
+        target = None
+        for i in targetSet:
+            if i.Index == lineIndex:
+                target = i
+                break
+        
+        target.ApplyLine(candidateToSet)
 
 
 class SpeculativeCallContext:
@@ -428,18 +489,18 @@ class BoardLogic(BoardStructure):
 
     def __init__(self):
         self.IsValid = True
-        for i in ActiveLines:
+        for i in BoardStructure.ActiveLines:
             if i.isValid() == False:
                 self.IsValid = False
                 break
         self.IsSet = True
-        for i in ActiveLines:
+        for i in BoardStructure.ActiveLines:
             if i.isSet() == False:
                 self.IsSet = False
                 break
 
         self.IsSolved = True
-        for i in ActiveLines:
+        for i in BoardStructure.ActiveLines:
             if i.isSolved() == False:
                 self.IsSolved = False
                 break
@@ -450,13 +511,13 @@ class BoardLogic(BoardStructure):
         
         if(self.IsValid and not self.IsSolved):
             undeterminedLines = []
-            for i in ActiveLines:
+            for i in BoardStructure.ActiveLines:
                 if i.IsSet == False:
                     undeterminedLines.append(i)
         
-        speculationTarget = ActiveLines[0]
-        counter = len(ActiveLines[0].candidateSolutions)
-        for i in ActiveLines[1:]:
+        speculationTarget = BoardStructure.ActiveLines[0]
+        counter = len(BoardStructure.ActiveLines[0].candidateSolutions)
+        for i in BoardStructure.ActiveLines[1:]:
             if len(i.candidateSolutions) < counter:
                 speculationTarget = i
                 counter = len(i.candidateSolutions)
@@ -481,7 +542,7 @@ class BoardLogic(BoardStructure):
                 return speculativeBoard
         
     def SetDeterminableCells(self):
-        for i in ActiveLines:
+        for i in BoardStructure.ActiveLines:
             i.ApplyLine(i.GetDeterminableCells())
     
     def Print(self):
