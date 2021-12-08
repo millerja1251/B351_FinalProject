@@ -368,13 +368,13 @@ class BoardStructure:
     def __init__(self, puzzle, copySource):
         if(puzzle != None):
             self.Puzzle = puzzle
-            self.RowCount = self.Puzzle.RowCount
-            self.ColumnCount = self.Puzzle.ColumnCount
+            self.RowCount = puzzle.RowCount
+            self.ColumnCount = puzzle.ColumnCount
 
             self.Matrix = [[] for i in range(self.RowCount + 1)]
             for rowIndex in range(self.RowCount):
                 for columnIndex in range(self.ColumnCount):
-                    self.Matrix[rowIndex][columnIndex] = Cell(CellState.UNKNOWN)
+                    self.Matrix[rowIndex].append(Cell(CellState.UNKNOWN))
                     self.Matrix[rowIndex][columnIndex].row = rowIndex
                     self.Matrix[rowIndex][columnIndex].column = columnIndex
             
@@ -419,7 +419,7 @@ class BoardStructure:
             
             columnRule = LineRule(self.Puzzle.ColumnRules[columnIndex], self.RowCount)
             
-            columns.append(ActiveLine(LineType.COLUMN, columnIndex, columnCells, columnRule))
+            columns.append(ActiveLine(columnCells, columnRule, LineType.COLUMN, columnIndex))
         
         return columns
 
@@ -433,7 +433,7 @@ class BoardStructure:
             
             rowRule = LineRule(self.Puzzle.RowRules[rowIndex], self.ColumnCount)
 
-            rows.append(ActiveLine(LineType.ROW, rowIndex, rowCells, rowRule))
+            rows.append(ActiveLine(rowCells, rowRule, LineType.ROW, rowIndex))
         
         return rows
 
