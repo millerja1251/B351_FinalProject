@@ -55,7 +55,7 @@ class LineRule:
         return self.minSpace() <= self.LineLength
     
     def isTrivial(self):
-        return self.isEmpty or (self.isLegal() and self.minSpace() >= self.LineLength)
+        return self.isEmpty or (self.isLegal and self.minSpace() >= self.LineLength)
     
     def getTrivialSolution(self):
 
