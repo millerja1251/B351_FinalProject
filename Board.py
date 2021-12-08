@@ -1,4 +1,4 @@
-from _typeshed import Self
+#from _typeshed import Self
 from enum import Enum
 import enum
 
@@ -371,7 +371,7 @@ class BoardStructure:
             self.RowCount = self.Puzzle.RowCount
             self.ColumnCount = self.Puzzle.ColumnCount
 
-            self.Matrix = [[] for i in range(self.RowCount)]
+            self.Matrix = [[] for i in range(self.RowCount + 1)]
             for rowIndex in range(self.RowCount):
                 for columnIndex in range(self.ColumnCount):
                     self.Matrix[rowIndex][columnIndex] = Cell(CellState.UNKNOWN)
@@ -696,5 +696,14 @@ class BoardLogic(BoardStructure):
 
 
 if __name__ == "__main__":
-    puzzle = BoardPuzzle()
+    puzzle1 = BoardPuzzle()
+    columnRules1 = [[1],[1,1],[1,1,1],[1,3],[4]]
+    rowRules1 = [[2],[1,1],[3],[1,2],[4]]
+    puzzle1.setColumns(columnRules1)
+    puzzle1.setRows(rowRules1)
+
+    board1 = BoardStructure(puzzle1, None)
+    boardSolver1 = BoardLogic(board1)
+    boardSolver1.Solve()
+    boardSolver1.Print()
 
