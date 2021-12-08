@@ -69,7 +69,7 @@ class LineRule:
         solution = [Cell(CellState.UNKNOWN)] * self.LineLength
         lineIndex = 0
         for i in range(len(self.Rules)):
-            for j in range(len(self.Rules[i])):
+            for j in range(self.Rules[i]):
 
                 solution[lineIndex] = Cell(CellState.FILLED)
                 lineIndex += 1
@@ -99,7 +99,7 @@ class LineRule:
                 line.Cells[i] = Cell(CellState.VOID)
             return line
         
-        lineBlocks = line.ComputeBlocks()
+        lineBlocks = line.computeBlocks()
         if (len(self.Rules) != len(lineBlocks)):
                 return False
         else:
@@ -287,7 +287,7 @@ class Line:
     
     def Print(self):
         lineString = ""
-
+        
         for cells in self.Cells:
 
             if cells.getState() == 2:
@@ -341,15 +341,16 @@ class ActiveLine(Line):
         if (self.isValid()):
             return Line(2, len(self.Cells), CellState.UNKNOWN)
 
-        determinableCells = Line(5, self.CandidateSolutions[0])
+        determinableCells = Line(5, self.CandidateSolutions[0], None)
         for candidateSolution in self.CandidateSolutions[1:]:
             determinableCells.And(candidateSolution)
 
             return determinableCells
     
     def ApplyLine(self, line):
-        # if(line.Length != self.Length):
-        #     raise ValueError("Lines must be of the same length")
+        print(line.Length, self.Length)
+        if(line.Length != self.Length):
+            raise ValueError("Lines must be of the same length")
 
         for i in range(0, self.Length):
             newState = line.Cells[i].getState()
@@ -525,7 +526,7 @@ class BoardLogic(BoardStructure):
         if(self.IsValid and not self.IsSolved):
             undeterminedLines = []
             for i in self.board.ActiveLines:
-                if i.IsSet == False:
+                if i.isSet == False:
                     undeterminedLines.append(i)
         
         speculationTarget = self.board.ActiveLines[0]
