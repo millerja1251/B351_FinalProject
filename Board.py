@@ -66,7 +66,7 @@ class LineRule:
 
         if(self.isEmpty):
             cells = [Cell(CellState.VOID)] * self.LineLength
-            return Line(cells)
+            return Line(1, cells)
 
         solution = [Cell(CellState.UNKNOWN)] * self.LineLength
         lineIndex = 0
@@ -80,7 +80,7 @@ class LineRule:
                 solution[lineIndex] = Cell(CellState.VOID)
                 lineIndex += 1
             
-        return Line(solution)
+        return Line(1, solution)
 
     def validate(self, line):
         lineBlocks = line.ComputeBlocks()
@@ -171,53 +171,53 @@ class LineRule:
     def GenerateLinesFromGapStructures(self, gapStructures):
         lines = []
         for gapStructure in gapStructures:
-            lines.append(Line(self.Rules, gapStructure))
+            lines.append(Line(6, self.Rules, gapStructure))
         
         return lines
     
 class Line:
 
-    def __init__(self, Cells, length, state, cells, cellStates, copyLine, blocksRule, gap, determiningNumber):
+    def __init__(self, determiningNumber, inputOne, inputTwo):
 
         self.Cells = []
         self.Length = len(self.Cells)
 
         if determiningNumber == 1:
-            self.Cells = Cells
-            self.Length = len(Cells)
+            self.Cells = inputOne
+            self.Length = len(inputOne)
 
         elif determiningNumber == 2:
             cellList = []
 
-            for i in range(0, length):
-                cellList[i] = Cell(state)
+            for i in range(0, inputOne):
+                cellList[i] = Cell(inputTwo)
         
             self.Cells = cellList
 
         elif determiningNumber == 3:
-            self.Cells = cells
+            self.Cells = inputOne
 
         elif determiningNumber == 4:
-            for i in range(0, len(cellStates) + 1):
-                self.Cells[i] = Cell(cellStates[i])
+            for i in range(0, len(inputOne) + 1):
+                self.Cells[i] = Cell(inputOne[i])
 
         elif determiningNumber == 5:
-            for i in range(0, len(copyLine)):
-                state = copyLine[i].getState()
+            for i in range(0, len(inputOne)):
+                state = inputOne[i].getState()
                 self.Cells[i] = Cell(state)
 
         elif determiningNumber == 6:
 
-            if len(blocksRule) != len(gap) + 1:
+            if len(inputOne) != len(inputTwo) + 1:
                 raise ValueError("Gap length must be greater than blocksRule by 1")
 
             cellList = []
             
-            for i in range(0, len(blocksRule)):
-                cellList.append(self.fillGap(gap[i]))
-                cellList.append(self.fillBlock(blocksRule[i]))
+            for i in range(0, len(inputOne)):
+                cellList.append(self.fillGap(inputTwo[i]))
+                cellList.append(self.fillBlock(inputOne[i]))
 
-            cellList.append(self.fillGap(gap[len(gap) - 1]))
+            cellList.append(self.fillGap(inputTwo[len(inputTwo) - 1]))
 
             self.Cells = cellList
 
@@ -340,9 +340,9 @@ class ActiveLine(Line):
 
     def GetDeterminableCells(self):
         if (self.isValid()):
-            return Line(len(self.Cells), CellState.UNKNOWN)
+            return Line(2, len(self.Cells), CellState.UNKNOWN)
 
-        determinableCells = Line(self.CandidateSolutions[0])
+        determinableCells = Line(5, self.CandidateSolutions[0])
         for candidateSolution in self.CandidateSolutions[1:]:
             determinableCells.And(candidateSolution)
 
