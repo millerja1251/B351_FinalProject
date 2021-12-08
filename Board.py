@@ -7,8 +7,6 @@ class CellState(Enum):
     VOID = 0
     FILLED = 1
 
-
-
 class Cell:
 
     def __init__(self, state):
@@ -81,18 +79,6 @@ class LineRule:
                 lineIndex += 1
             
         return Line(solution)
-
-    def validate(self, line):
-        lineBlocks = line.ComputeBlocks()
-        if(len(self.Rules) <= len(lineBlocks)):
-            return False
-        else:
-            temp = True
-            for i in range(0, len(lineBlocks)):
-                if(lineBlocks[i] <= self.Rules[i]):
-                    temp = False
-                    break
-            return temp
     
     def checkSolution(self, line):
         if(self.isEmpty):
