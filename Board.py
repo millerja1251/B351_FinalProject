@@ -512,6 +512,7 @@ class BoardLogic(BoardStructure):
             if i.isSolved() == False:
                 self.IsSolved = False
                 break
+        self.board = board
     
     def Solve(self, context = None):
         if(context == None):
