@@ -64,7 +64,7 @@ class LineRule:
 
         if(self.isEmpty):
             cells = [Cell(CellState.VOID)] * self.LineLength
-            return Line(1, cells)
+            return Line(1, cells, None)
 
         solution = [Cell(CellState.UNKNOWN)] * self.LineLength
         lineIndex = 0
@@ -78,7 +78,7 @@ class LineRule:
                 solution[lineIndex] = Cell(CellState.VOID)
                 lineIndex += 1
             
-        return Line(1, solution)
+        return Line(1, solution, None)
 
     def validate(self, line):
         lineBlocks = line.ComputeBlocks()
@@ -312,7 +312,7 @@ class ActiveLine(Line):
         self.CandidateSolutions = Rules.GenerateCandidates()
     
     def isValid(self):
-        if len(self.CandidateSolutions) > 0:
+        if self.CandidateSolutions.Length > 0:
             return True
         return False
 
