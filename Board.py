@@ -58,7 +58,7 @@ class LineRule:
         if(len(self.Rules) == 1):
             return 0
         else:
-            self.innerRules() + 1
+            return self.innerRules() + 1
     
     def isEmpty(self):
         if(len(self.Rules) <= 0 or self.Rules[0] == 0):
@@ -299,7 +299,10 @@ class Line:
         for i in range(0, self.Length):
             localState = self.Cells[i].getState()
             otherState = otherLine.Cells[i].getState()
-            self.Cells[i] = localState.And(otherState)
+            if localState == otherState:
+                self.Cells[i].setState(localState)
+            else:
+                self.Cells[i].setState(CellState.UNKNOWN)
     
     def Print(self):
         lineString = ""
@@ -354,14 +357,14 @@ class ActiveLine(Line):
         self.CandidateSolutions = temp           
 
     def GetDeterminableCells(self):
-        if (self.isValid()):
+        if (not self.isValid()):
             return Line(2, len(self.Cells), CellState.UNKNOWN)
 
         determinableCells = Line(5, self.CandidateSolutions[0], None)
         for candidateSolution in self.CandidateSolutions[1:]:
             determinableCells.And(candidateSolution)
 
-            return determinableCells
+        return determinableCells
     
     def ApplyLine(self, line):
         print(line.Length, self.Length)
