@@ -54,6 +54,12 @@ class LineRule:
         else:
             return self.innerRules() + 1
     
+    def innerGaps(self):
+        if(len(self.Rules) == 1):
+            return 0
+        else:
+            self.innerRules() + 1
+    
     def isEmpty(self):
         if(len(self.Rules) <= 0 or self.Rules[0] == 0):
             return True
@@ -130,13 +136,13 @@ class LineRule:
         return self.GenerateLinesFromGapStructures(generatedGaps)
 
     def GetGapRules(self):
-        voidsToAllocate = self.LineLength - self.filledCells() - (self.innerRules() + 1)
+        voidsToAllocate = self.LineLength - self.filledCells() - self.innerGaps()
         gapRules = []
         
         newTuple = (0, voidsToAllocate)
         gapRules.append(newTuple)
 
-        for i in range((self.innerRules() + 1)):
+        for i in range(self.innerGaps()):
             newTuple = (1, 1 + voidsToAllocate)
             gapRules.append(newTuple)
 
