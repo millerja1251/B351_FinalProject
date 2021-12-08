@@ -214,7 +214,7 @@ class Line:
                 self.Cells[i] = Cell(inputOne[i])
 
         elif determiningNumber == 5:
-            for i in range(0, len(inputOne)):
+            for i in range(0, inputOne.Length):
                 state = inputOne[i].getState()
                 self.Cells[i] = Cell(state)
 
@@ -299,7 +299,11 @@ class Line:
         for i in range(0, self.Length):
             localState = self.Cells[i].getState()
             otherState = otherLine.Cells[i].getState()
+<<<<<<< HEAD
             if localState == otherState:
+=======
+            if(localState == otherState):
+>>>>>>> 28faf2ecc71c677a3a06f35ba90fc685fafb4aa6
                 self.Cells[i].setState(localState)
             else:
                 self.Cells[i].setState(CellState.UNKNOWN)
