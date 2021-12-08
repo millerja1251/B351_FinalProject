@@ -114,7 +114,8 @@ class LineRule:
     
     def GenerateCandidates(self):
         if (self.isTrivial()):
-            return self.getTrivialSolution()
+            temp = [self.getTrivialSolution]
+            return temp
         gapRules = self.GetGapRules()
         generatedGaps = self.GenerateGapStructures(gapRules, self.voidCells())
         return self.GenerateLinesFromGapStructures(generatedGaps)
@@ -313,7 +314,7 @@ class ActiveLine(Line):
         self.Length = len(Cells)
     
     def isValid(self):
-        if self.CandidateSolutions.Length > 0:
+        if len(self.CandidateSolutions) > 0:
             return True
         return False
 
@@ -527,11 +528,11 @@ class BoardLogic(BoardStructure):
                     undeterminedLines.append(i)
         
         speculationTarget = self.board.ActiveLines[0]
-        counter = len(self.board.ActiveLines[0].candidateSolutions)
+        counter = len(self.board.ActiveLines[0].CandidateSolutions)
         for i in self.board.ActiveLines[1:]:
-            if len(i.candidateSolutions) < counter:
+            if len(i.CandidateSolutions) < counter:
                 speculationTarget = i
-                counter = len(i.candidateSolutions)
+                counter = len(i.CandidateSolutions)
 
         candidateSolutions = speculationTarget.CandidateSolutions
         candidatesCount = len(candidateSolutions)
