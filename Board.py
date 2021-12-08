@@ -34,16 +34,25 @@ class LineRule:
         return self.LineLength - self.filledCells()
 
     def minSpace(self):
-        return self.filledCells() + (len(self.Rules)-1)
+        return self.filledCells() + self.minGaps()
 
     def outerRules(self):
-        if(len(self.Rules) >= 3):
-            return 2
-        else:
+        if(len(self.Rules) == 1):
             return 1
+        else:
+            return 2
     
     def innerRules(self):
         return len(self.Rules) - self.outerRules()
+
+    def minGaps(self):
+        if(len(self.Rules) == 1):
+            if(self.filledCells() == self.LineLength):
+                return 0
+            else:
+                return 1
+        else:
+            return self.innerRules() + 1
     
     def isEmpty(self):
         if(len(self.Rules) <= 0 or self.Rules[0] == 0):
@@ -69,7 +78,7 @@ class LineRule:
         solution = [Cell(CellState.UNKNOWN)] * self.LineLength
         lineIndex = 0
         for i in range(len(self.Rules)):
-            for j in range(len(self.Rules[i])):
+            for j in range(self.Rules[i]):
 
                 solution[lineIndex] = Cell(CellState.FILLED)
                 lineIndex += 1
@@ -114,7 +123,6 @@ class LineRule:
     
     def GenerateCandidates(self):
         if (self.isTrivial()):
-            #print(self.minSpace() >= self.LineLength)
             temp = [self.getTrivialSolution()]
             return temp
         gapRules = self.GetGapRules()
@@ -206,7 +214,9 @@ class Line:
 
         elif determiningNumber == 6:
 
-            if len(inputOne) != len(inputTwo) + 1:
+            if len(inputOne) != len(inputTwo) - 1:
+                print(len(inputOne))
+                print(len(inputTwo))
                 raise ValueError("Gap length must be greater than blocksRule by 1")
 
             cellList = []
@@ -348,8 +358,8 @@ class ActiveLine(Line):
             return determinableCells
     
     def ApplyLine(self, line):
-        # if(line.Length != self.Length):
-        #     raise ValueError("Lines must be of the same length")
+        if(line.Length != self.Length):
+            raise ValueError("Lines must be of the same length")
 
         for i in range(0, self.Length):
             newState = line.Cells[i].getState()
