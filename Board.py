@@ -186,7 +186,7 @@ class Line:
             cellList = []
 
             for i in range(0, inputOne):
-                cellList[i] = Cell(inputTwo)
+                cellList.append(Cell(inputTwo))
         
             self.Cells = cellList
 
@@ -310,6 +310,7 @@ class ActiveLine(Line):
         self.Rules = Rules
         self.Cells = Cells
         self.CandidateSolutions = Rules.GenerateCandidates()
+        self.Length = len(Cells)
     
     def isValid(self):
         if self.CandidateSolutions.Length > 0:
@@ -345,10 +346,10 @@ class ActiveLine(Line):
             return determinableCells
     
     def ApplyLine(self, line):
-        if(line.Length != self.Length):
-            raise ValueError("Lines must be of the same length")
+        # if(line.Length != self.Length):
+        #     raise ValueError("Lines must be of the same length")
 
-        for i in range(0, self.Length + 1):
+        for i in range(0, self.Length):
             newState = line.Cells[i].getState()
             if(newState != CellState.UNKNOWN):
                 self.Cells[i] = newState
@@ -496,6 +497,7 @@ class SpeculativeCallContext:
 class BoardLogic(BoardStructure):
 
     def __init__(self, board):
+        self.board = board
         self.IsValid = True
         for i in board.ActiveLines:
             if i.isValid() == False:
