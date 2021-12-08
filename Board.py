@@ -55,14 +55,14 @@ class LineRule:
         return self.minSpace() <= self.LineLength
     
     def isTrivial(self):
-        return self.isEmpty or (self.isLegal() and self.minSpace() >= self.LineLength)
+        return self.isEmpty() or (self.isLegal() and self.minSpace() >= self.LineLength)
     
     def getTrivialSolution(self):
 
         if (not self.isTrivial()):
                 return None
 
-        if(self.isEmpty):
+        if(self.isEmpty()):
             cells = [Cell(CellState.VOID)] * self.LineLength
             return Line(1, cells, None)
 
@@ -94,7 +94,7 @@ class LineRule:
         return Line(solution)
     
     def checkSolution(self, line):
-        if(self.isEmpty):
+        if(self.isEmpty()):
             for i in range(len(line.Cells)):
                 line.Cells[i] = Cell(CellState.VOID)
             return line
@@ -114,7 +114,8 @@ class LineRule:
     
     def GenerateCandidates(self):
         if (self.isTrivial()):
-            temp = [self.getTrivialSolution]
+            #print(self.minSpace() >= self.LineLength)
+            temp = [self.getTrivialSolution()]
             return temp
         gapRules = self.GetGapRules()
         generatedGaps = self.GenerateGapStructures(gapRules, self.voidCells())
