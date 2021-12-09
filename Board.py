@@ -340,7 +340,7 @@ class ActiveLine(Line):
 
     def isSet(self):
         for cell in self.Cells:
-            if(cell == CellState.UNKNOWN):
+            if(cell.getState() == CellState.UNKNOWN):
                 return False
         return True
 
@@ -374,7 +374,7 @@ class ActiveLine(Line):
         for i in range(0, self.Length):
             newState = line.Cells[i].getState()
             if(newState != CellState.UNKNOWN):
-                self.Cells[i] = newState
+                self.Cells[i].setState(newState)
         
         self.ReviewCandidates()
 
@@ -422,28 +422,33 @@ class BoardStructure:
                 self.ActiveLines.append(i)
             for i in self.Rows:
                 self.ActiveLines.append(i)
+
+            # for i in self.ActiveLines:
+            #     for j in i.Cells:
+            #         print(j.getState())
+
         
-        if(copySource != None):
-            self.Puzzle = copySource.Puzzle
-            self.RowCount = copySource.RowCount
-            self.ColumnCount = copySource.ColumnCount
+        # if(copySource != None):
+        #     self.Puzzle = copySource.Puzzle
+        #     self.RowCount = copySource.RowCount
+        #     self.ColumnCount = copySource.ColumnCount
 
-            self.Matrix = [[] for i in range(self.RowCount)]
-            for rowIndex in range(self.RowCount):
-                for columnIndex in range(self.ColumnCount):
-                    otherCell = copySource.Matrix[rowIndex][columnIndex]
-                    self.Matrix[rowIndex][columnIndex] = Cell(otherCell.getState())
-                    self.Matrix[rowIndex][columnIndex].row = rowIndex
-                    self.Matrix[rowIndex][columnIndex].column = columnIndex
+        #     self.Matrix = [[] for i in range(self.RowCount)]
+        #     for rowIndex in range(self.RowCount):
+        #         for columnIndex in range(self.ColumnCount):
+        #             otherCell = copySource.Matrix[rowIndex][columnIndex]
+        #             self.Matrix[rowIndex][columnIndex] = Cell(otherCell.getState())
+        #             self.Matrix[rowIndex][columnIndex].row = rowIndex
+        #             self.Matrix[rowIndex][columnIndex].column = columnIndex
             
-            self.Columns = self.CopyColumns(copySource)
-            self.Rows = self.CopyRows(copySource)
-            self.ActiveLines = []
+        #     self.Columns = self.CopyColumns(copySource)
+        #     self.Rows = self.CopyRows(copySource)
+        #     self.ActiveLines = []
 
-            for i in self.Columns:
-                self.ActiveLines.append(i)
-            for i in self.Rows:
-                self.ActiveLines.append(i)
+        #     for i in self.Columns:
+        #         self.ActiveLines.append(i)
+        #     for i in self.Rows:
+        #         self.ActiveLines.append(i)
     
     def GatherColumns(self):
         columns = []
@@ -541,8 +546,7 @@ class BoardLogic(BoardStructure):
     def Solve(self, context = None):
         if(context == None):
             self.SetDeterminableCells()
-        
-        if(self.IsValid and not self.IsSolved):
+
             undeterminedLines = []
             for i in self.board.ActiveLines:
                 if i.isSet() == False:
