@@ -213,6 +213,7 @@ class Line:
                 self.Cells[i] = Cell(inputOne[i])
 
         elif determiningNumber == 5:
+
             for i in range(0, inputOne.Length):
                 state = inputOne.Cells[i].getState()
                 self.Cells.append(Cell(state))
@@ -308,9 +309,9 @@ class Line:
         
         for cells in self.Cells:
 
-            if cells.getState() == 2:
+            if cells == CellState.UNKNOWN:
                 lineString + "?"
-            elif cells.getState() == 0:
+            elif cells == CellState.VOID:
                 lineString + " "
             else:
                 lineString + " ■"
@@ -741,5 +742,5 @@ if __name__ == "__main__":
     board1 = BoardStructure(puzzle1, None)
     boardSolver1 = BoardLogic(board1)
     boardSolver1.Solve()
-    boardSolver1.Print()
+    print(boardSolver1.Print())
 
