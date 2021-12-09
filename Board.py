@@ -330,6 +330,7 @@ class ActiveLine(Line):
         self.Rules = Rules
         self.Cells = Cells
         self.CandidateSolutions = Rules.GenerateCandidates()
+        self.CandidateCount = len(self.CandidateSolutions)
         self.Length = len(Cells)
     
     def isValid(self):
@@ -339,12 +340,13 @@ class ActiveLine(Line):
 
     def isSet(self):
         for cell in self.Cells:
-            if(cell.getState() == CellState.UNKNOWN):
+            if(cell == CellState.UNKNOWN):
                 return False
         return True
 
     def isSolved(self):
-        return self.Rules.checkSolution(self)
+        tempLine = Line(1, self.Cells, None)
+        return self.Rules.checkSolution(tempLine)
     
     def ReviewCandidates(self):
         temp = []
@@ -543,28 +545,27 @@ class BoardLogic(BoardStructure):
         if(self.IsValid and not self.IsSolved):
             undeterminedLines = []
             for i in self.board.ActiveLines:
-                if i.isSet == False:
+                if i.isSet() == False:
                     undeterminedLines.append(i)
+            print(len(self.board.ActiveLines))
         
             speculationTarget = undeterminedLines[0]
-            counter = len(self.board.ActiveLines[0].CandidateSolutions)
-            for i in self.board.ActiveLines[1:]:
-                if len(i.CandidateSolutions) < counter:
+            for i in undeterminedLines[1:]:
+                if speculationTarget.CandidateCount >  i.CandidateCount:
                     speculationTarget = i
-                    counter = len(i.CandidateSolutions)
 
             candidateSolutions = speculationTarget.CandidateSolutions
             candidatesCount = len(candidateSolutions)
 
             for i in range(candidatesCount):
-                speculativeBoard = BoardLogic(self)
+                speculativeBoard = BoardLogic(self.board)
                 speculativeBoard.SetLineSolution(speculationTarget.Type, speculationTarget.Index, candidateSolutions[i])
 
                 speculativeContext = SpeculativeCallContext()
-                if(context == None or context.depth == None):
-                    speculativeContext.depth = 1
-                else:
+                if(context.depth != None):
                     speculativeContext.depth = context.depth + 1
+                else:
+                    speculativeContext.depth = 1
                 speculativeContext.optionIndex = i
                 speculativeContext.optionsCount = candidatesCount
 
