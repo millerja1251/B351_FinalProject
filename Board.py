@@ -192,7 +192,6 @@ class Line:
     def __init__(self, determiningNumber, inputOne, inputTwo):
 
         self.Cells = []
-        self.Length = len(self.Cells)
 
         if determiningNumber == 1:
             self.Cells = inputOne
@@ -214,26 +213,27 @@ class Line:
                 self.Cells[i] = Cell(inputOne[i])
 
         elif determiningNumber == 5:
+
             for i in range(0, inputOne.Length):
-                state = inputOne[i].getState()
-                self.Cells[i] = Cell(state)
+                state = inputOne.Cells[i].getState()
+                self.Cells.append(Cell(state))
 
         elif determiningNumber == 6:
 
             if len(inputOne) != len(inputTwo) - 1:
-                print(len(inputOne))
-                print(len(inputTwo))
                 raise ValueError("Gap length must be greater than blocksRule by 1")
 
             cellList = []
             
             for i in range(0, len(inputOne)):
-                cellList.append(self.fillGap(inputTwo[i]))
-                cellList.append(self.fillBlock(inputOne[i]))
+                cellList.extend(self.fillGap(inputTwo[i]))
+                cellList.extend(self.fillBlock(inputOne[i]))
 
-            cellList.append(self.fillGap(inputTwo[len(inputTwo) - 1]))
+            cellList.extend(self.fillGap(inputTwo[len(inputTwo) - 1]))
 
             self.Cells = cellList
+
+        self.Length = len(self.Cells)
 
 
     def fillGap(self, gapSize):
@@ -306,16 +306,15 @@ class Line:
     
     def Print(self):
         lineString = ""
-        
         for cells in self.Cells:
 
-            if cells.getState() == 2:
+            if cells == CellState.UNKNOWN:
                 lineString + "?"
-            elif cells.getState() == 0:
+            elif cells == CellState.VOID:
                 lineString + " "
             else:
                 lineString + " ■"
-        
+            
         lineString + "\n"
         return lineString
 
@@ -358,7 +357,7 @@ class ActiveLine(Line):
 
     def GetDeterminableCells(self):
         if (not self.isValid()):
-            return Line(2, len(self.Cells), CellState.UNKNOWN)
+            return Line(2, self.Length, CellState.UNKNOWN)
 
         determinableCells = Line(5, self.CandidateSolutions[0], None)
         for candidateSolution in self.CandidateSolutions[1:]:
@@ -367,7 +366,6 @@ class ActiveLine(Line):
         return determinableCells
     
     def ApplyLine(self, line):
-        print(line.Length, self.Length)
         if(line.Length != self.Length):
             raise ValueError("Lines must be of the same length")
 
@@ -548,31 +546,31 @@ class BoardLogic(BoardStructure):
                 if i.isSet == False:
                     undeterminedLines.append(i)
         
-        speculationTarget = self.board.ActiveLines[0]
-        counter = len(self.board.ActiveLines[0].CandidateSolutions)
-        for i in self.board.ActiveLines[1:]:
-            if len(i.CandidateSolutions) < counter:
-                speculationTarget = i
-                counter = len(i.CandidateSolutions)
+            speculationTarget = undeterminedLines[0]
+            counter = len(self.board.ActiveLines[0].CandidateSolutions)
+            for i in self.board.ActiveLines[1:]:
+                if len(i.CandidateSolutions) < counter:
+                    speculationTarget = i
+                    counter = len(i.CandidateSolutions)
 
-        candidateSolutions = speculationTarget.CandidateSolutions
-        candidatesCount = len(candidateSolutions)
+            candidateSolutions = speculationTarget.CandidateSolutions
+            candidatesCount = len(candidateSolutions)
 
-        for i in range(candidatesCount):
-            speculativeBoard = BoardLogic(self)
-            speculativeBoard.SetLineSolution(speculationTarget.Type, speculationTarget.Index, candidateSolutions[i])
+            for i in range(candidatesCount):
+                speculativeBoard = BoardLogic(self)
+                speculativeBoard.SetLineSolution(speculationTarget.Type, speculationTarget.Index, candidateSolutions[i])
 
-            speculativeContext = SpeculativeCallContext()
-            if(context == None or context.depth == None):
-                speculativeContext.depth = 1
-            else:
-                speculativeContext.depth = context.depth + 1
-            speculativeContext.optionIndex = i
-            speculativeContext.optionsCount = candidatesCount
+                speculativeContext = SpeculativeCallContext()
+                if(context == None or context.depth == None):
+                    speculativeContext.depth = 1
+                else:
+                    speculativeContext.depth = context.depth + 1
+                speculativeContext.optionIndex = i
+                speculativeContext.optionsCount = candidatesCount
 
-            speculativeBoard.Solve(speculativeContext)
-            if(speculativeBoard.IsValid and speculativeBoard.IsSolved):
-                return speculativeBoard
+                speculativeBoard.Solve(speculativeContext)
+                if(speculativeBoard.IsValid and speculativeBoard.IsSolved):
+                    return speculativeBoard
         
     def SetDeterminableCells(self):
         for i in self.board.ActiveLines:
@@ -742,6 +740,6 @@ if __name__ == "__main__":
 
     board1 = BoardStructure(puzzle1, None)
     boardSolver1 = BoardLogic(board1)
-    boardSolver1.Solve()
-    boardSolver1.Print()
+    boardSolver1 = boardSolver1.Solve()
+    print(boardSolver1.Print())
 
