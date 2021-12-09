@@ -306,7 +306,6 @@ class Line:
     
     def Print(self):
         lineString = ""
-        
         for cells in self.Cells:
 
             if cells == CellState.UNKNOWN:
@@ -315,7 +314,7 @@ class Line:
                 lineString + " "
             else:
                 lineString + " ■"
-        
+            
         lineString + "\n"
         return lineString
 
@@ -547,31 +546,31 @@ class BoardLogic(BoardStructure):
                 if i.isSet == False:
                     undeterminedLines.append(i)
         
-        speculationTarget = self.board.ActiveLines[0]
-        counter = len(self.board.ActiveLines[0].CandidateSolutions)
-        for i in self.board.ActiveLines[1:]:
-            if len(i.CandidateSolutions) < counter:
-                speculationTarget = i
-                counter = len(i.CandidateSolutions)
+            speculationTarget = undeterminedLines[0]
+            counter = len(self.board.ActiveLines[0].CandidateSolutions)
+            for i in self.board.ActiveLines[1:]:
+                if len(i.CandidateSolutions) < counter:
+                    speculationTarget = i
+                    counter = len(i.CandidateSolutions)
 
-        candidateSolutions = speculationTarget.CandidateSolutions
-        candidatesCount = len(candidateSolutions)
+            candidateSolutions = speculationTarget.CandidateSolutions
+            candidatesCount = len(candidateSolutions)
 
-        for i in range(candidatesCount):
-            speculativeBoard = BoardLogic(self)
-            speculativeBoard.SetLineSolution(speculationTarget.Type, speculationTarget.Index, candidateSolutions[i])
+            for i in range(candidatesCount):
+                speculativeBoard = BoardLogic(self)
+                speculativeBoard.SetLineSolution(speculationTarget.Type, speculationTarget.Index, candidateSolutions[i])
 
-            speculativeContext = SpeculativeCallContext()
-            if(context == None or context.depth == None):
-                speculativeContext.depth = 1
-            else:
-                speculativeContext.depth = context.depth + 1
-            speculativeContext.optionIndex = i
-            speculativeContext.optionsCount = candidatesCount
+                speculativeContext = SpeculativeCallContext()
+                if(context == None or context.depth == None):
+                    speculativeContext.depth = 1
+                else:
+                    speculativeContext.depth = context.depth + 1
+                speculativeContext.optionIndex = i
+                speculativeContext.optionsCount = candidatesCount
 
-            speculativeBoard.Solve(speculativeContext)
-            if(speculativeBoard.IsValid and speculativeBoard.IsSolved):
-                return speculativeBoard
+                speculativeBoard.Solve(speculativeContext)
+                if(speculativeBoard.IsValid and speculativeBoard.IsSolved):
+                    return speculativeBoard
         
     def SetDeterminableCells(self):
         for i in self.board.ActiveLines:
@@ -741,6 +740,6 @@ if __name__ == "__main__":
 
     board1 = BoardStructure(puzzle1, None)
     boardSolver1 = BoardLogic(board1)
-    boardSolver1.Solve()
+    boardSolver1 = boardSolver1.Solve()
     print(boardSolver1.Print())
 
