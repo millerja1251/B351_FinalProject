@@ -192,7 +192,6 @@ class Line:
     def __init__(self, determiningNumber, inputOne, inputTwo):
 
         self.Cells = []
-        self.Length = len(self.Cells)
 
         if determiningNumber == 1:
             self.Cells = inputOne
@@ -215,25 +214,25 @@ class Line:
 
         elif determiningNumber == 5:
             for i in range(0, inputOne.Length):
-                state = inputOne[i].getState()
-                self.Cells[i] = Cell(state)
+                state = inputOne.Cells[i].getState()
+                self.Cells.append(Cell(state))
 
         elif determiningNumber == 6:
 
             if len(inputOne) != len(inputTwo) - 1:
-                print(len(inputOne))
-                print(len(inputTwo))
                 raise ValueError("Gap length must be greater than blocksRule by 1")
 
             cellList = []
             
             for i in range(0, len(inputOne)):
-                cellList.append(self.fillGap(inputTwo[i]))
-                cellList.append(self.fillBlock(inputOne[i]))
+                cellList.extend(self.fillGap(inputTwo[i]))
+                cellList.extend(self.fillBlock(inputOne[i]))
 
-            cellList.append(self.fillGap(inputTwo[len(inputTwo) - 1]))
+            cellList.extend(self.fillGap(inputTwo[len(inputTwo) - 1]))
 
             self.Cells = cellList
+
+        self.Length = len(self.Cells)
 
 
     def fillGap(self, gapSize):
@@ -299,11 +298,7 @@ class Line:
         for i in range(0, self.Length):
             localState = self.Cells[i].getState()
             otherState = otherLine.Cells[i].getState()
-<<<<<<< HEAD
             if localState == otherState:
-=======
-            if(localState == otherState):
->>>>>>> 28faf2ecc71c677a3a06f35ba90fc685fafb4aa6
                 self.Cells[i].setState(localState)
             else:
                 self.Cells[i].setState(CellState.UNKNOWN)
@@ -362,7 +357,7 @@ class ActiveLine(Line):
 
     def GetDeterminableCells(self):
         if (not self.isValid()):
-            return Line(2, len(self.Cells), CellState.UNKNOWN)
+            return Line(2, self.Length, CellState.UNKNOWN)
 
         determinableCells = Line(5, self.CandidateSolutions[0], None)
         for candidateSolution in self.CandidateSolutions[1:]:
@@ -371,7 +366,6 @@ class ActiveLine(Line):
         return determinableCells
     
     def ApplyLine(self, line):
-        print(line.Length, self.Length)
         if(line.Length != self.Length):
             raise ValueError("Lines must be of the same length")
 
