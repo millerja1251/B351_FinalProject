@@ -336,13 +336,15 @@ class ActiveLine(Line):
     def isValid(self):
         if len(self.CandidateSolutions) > 0:
             return True
-        return False
+        else:
+            return False
 
     def isSet(self):
         for cell in self.Cells:
             if(cell == CellState.UNKNOWN):
                 return False
-        return True
+        else:
+            return True
 
     def isSolved(self):
         tempLine = Line(1, self.Cells, None)
@@ -374,7 +376,7 @@ class ActiveLine(Line):
         for i in range(0, self.Length):
             newState = line.Cells[i].getState()
             if(newState != CellState.UNKNOWN):
-                self.Cells[i] = newState
+                self.Cells[i].setState(newState)
         
         self.ReviewCandidates()
 
@@ -407,13 +409,12 @@ class BoardStructure:
             self.RowCount = puzzle.RowCount
             self.ColumnCount = puzzle.ColumnCount
 
-            self.Matrix = [[] for i in range(self.RowCount + 1)]
+            self.Matrix = [[] for i in range(self.RowCount)]
             for rowIndex in range(self.RowCount):
                 for columnIndex in range(self.ColumnCount):
                     self.Matrix[rowIndex].append(Cell(CellState.UNKNOWN))
                     self.Matrix[rowIndex][columnIndex].row = rowIndex
                     self.Matrix[rowIndex][columnIndex].column = columnIndex
-            
             self.Columns = self.GatherColumns()
             self.Rows = self.GatherRows()
             self.ActiveLines = []
@@ -547,8 +548,7 @@ class BoardLogic(BoardStructure):
             for i in self.board.ActiveLines:
                 if i.isSet() == False:
                     undeterminedLines.append(i)
-            print(len(self.board.ActiveLines))
-        
+            
             speculationTarget = undeterminedLines[0]
             for i in undeterminedLines[1:]:
                 if speculationTarget.CandidateCount >  i.CandidateCount:
