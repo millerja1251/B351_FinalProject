@@ -543,9 +543,9 @@ class BoardLogic(BoardStructure):
         if(self.IsValid and not self.IsSolved):
             undeterminedLines = []
             for i in self.board.ActiveLines:
-                if i.isSet == False:
+                if i.isSet() == False:
                     undeterminedLines.append(i)
-        
+
             speculationTarget = undeterminedLines[0]
             counter = len(self.board.ActiveLines[0].CandidateSolutions)
             for i in self.board.ActiveLines[1:]:
