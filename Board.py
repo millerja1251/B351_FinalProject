@@ -508,8 +508,8 @@ class BoardStructure:
         if(lineType == LineType.ROW):
             targetSet = self.Rows
         
-        target = None
-        for i in targetSet:
+        target = targetSet[0]
+        for i in targetSet[1:]:
             if i.Index == lineIndex:
                 target = i
                 break
@@ -522,7 +522,10 @@ class SpeculativeCallContext:
     global optionIndex
     global optionsCount
 
-
+class VerboseLevel(Enum):
+    SILENT = 0
+    STARTDECLARATION = 1
+    STEPBYSTEP = 2
 
 class BoardLogic(BoardStructure):
 
@@ -547,26 +550,15 @@ class BoardLogic(BoardStructure):
 
         self.Columns = self.board.Columns
         
-    def Solve(self, context):
-        print(self.board.RowCount)
-        print(self.board.ColumnCount)
-        for j in range(5):
-            for k in range(5):
-                print(self.board.Matrix[j][k].getState())
-        for j in self.board.ActiveLines:
-            print(j.Rules.Rules)
-            print(j.CandidateSolutions)
-        print("\n")
+    def Solve(self, verboseLevel, context):
+        if(not self.IsValid):
+            if(verboseLevel != VerboseLevel.SILENT):
+                return
+        
         if(context == None):
             self.SetDeterminableCells()
-        print(self.board.RowCount)
-        print(self.board.ColumnCount)
-        for j in range(5):
-            for k in range(5):
-                print(self.board.Matrix[j][k].getState())
-        for j in self.board.ActiveLines:
-            print(j.Rules.Rules)
-            print(j.CandidateSolutions)
+        
+        self.CandidateExlclusionSolve(verboseLevel)
         
         if(self.IsValid and not self.IsSolved):
             undeterminedLines = []
@@ -589,6 +581,7 @@ class BoardLogic(BoardStructure):
                 tempCopy = copy.deepcopy(self.board)
                 speculativeBoard = BoardLogic(tempCopy)
                 speculativeBoard.SetLineSolution(speculationTarget.Type, speculationTarget.Index, candidateSolutions[i])
+                
                 speculativeContext = SpeculativeCallContext()
                 if(context == None):
                     context = speculativeContext
@@ -597,15 +590,28 @@ class BoardLogic(BoardStructure):
                     speculativeContext.depth = context.depth + 1
                 speculativeContext.optionIndex = i
                 speculativeContext.optionsCount = candidatesCount
-
-
-                speculativeBoard.Solve(speculativeContext)
+                
+                for i in self.board.ActiveLines:
+                    print(i.CandidateSolutions)
+                speculativeBoard.Solve(verboseLevel, speculativeContext)
                 if(speculativeBoard.IsValid and speculativeBoard.IsSolved):
-                    self.board = speculativeBoard.board
+                    speculativeBoardCopy = copy.deepcopy(speculativeBoard)
+                    self.board = speculativeBoardCopy.board
         
     def SetDeterminableCells(self):
         for i in self.board.ActiveLines:
             i.ApplyLine(i.GetDeterminableCells())
+
+    def CandidateExlclusionSolve(self, verboseLevel):
+        solvableLines = []
+        for i in self.board.ActiveLines:
+            if(not i.isSet() and i.CandidateCount == 1):
+                solvableLines.append(i)
+        while(len(solvableLines) > 0 and self.IsValid):
+            selectedLine = solvableLines[0]
+            selectedLine.ApplyLine(selectedLine.CandidateSolutions[0])
+            solvableLines.pop(0)
+
     
     def Print(self):
         for row in self.board.Rows:
@@ -772,8 +778,8 @@ if __name__ == "__main__":
     board1 = BoardStructure(puzzle1, None)
     boardSolver1 = BoardLogic(board1)
     #t0 = time.perf_counter_ns()
-    boardSolver1.Solve(None)
+    boardSolver1.Solve(VerboseLevel.SILENT, None)
     #t1 = time.perf_counter_ns()
-    #boardSolver1.Print()
+    boardSolver1.Print()
     #print(t1-t0)
 
