@@ -557,6 +557,7 @@ class BoardLogic(BoardStructure):
             for i in undeterminedLines[1:]:
                 if speculationTarget.CandidateCount >  i.CandidateCount:
                     speculationTarget = i
+                    speculationTarget.CandidateSolutions = i.Rules.GenerateCandidates()
 
             candidateSolutions = speculationTarget.CandidateSolutions
             candidatesCount = len(candidateSolutions)
