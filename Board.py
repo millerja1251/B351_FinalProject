@@ -305,18 +305,15 @@ class Line:
                 self.Cells[i].setState(CellState.UNKNOWN)
     
     def Print(self):
-        lineString = ""
         for cells in self.Cells:
-
-            if cells == CellState.UNKNOWN:
-                lineString + "?"
-            elif cells == CellState.VOID:
-                lineString + " "
+            if cells.getState() == CellState.UNKNOWN:
+                print("? ")
+            elif cells.getState() == CellState.VOID:
+                print(" ")
             else:
-                lineString + " ■"
+                print(" ■")
             
-        lineString + "\n"
-        return lineString
+        print("\n")
 
 
 class LineType(Enum):
@@ -545,7 +542,7 @@ class BoardLogic(BoardStructure):
 
         self.Columns = self.board.Columns
         
-    def Solve(self, context = None):
+    def Solve(self, context):
         if(context == None):
             self.SetDeterminableCells()
 
@@ -567,7 +564,6 @@ class BoardLogic(BoardStructure):
             for i in range(candidatesCount):
                 speculativeBoard = BoardLogic(self.board)
                 speculativeBoard.SetLineSolution(speculationTarget.Type, speculationTarget.Index, candidateSolutions[i])
-
                 speculativeContext = SpeculativeCallContext()
                 if(context == None):
                     context = speculativeContext
@@ -579,7 +575,7 @@ class BoardLogic(BoardStructure):
 
                 speculativeBoard.Solve(speculativeContext)
                 if(speculativeBoard.IsValid and speculativeBoard.IsSolved):
-                    return speculativeBoard
+                    self.board = speculativeBoard.board
         
     def SetDeterminableCells(self):
         for i in self.board.ActiveLines:
@@ -749,6 +745,6 @@ if __name__ == "__main__":
 
     board1 = BoardStructure(puzzle1, None)
     boardSolver1 = BoardLogic(board1)
-    boardSolver1 = boardSolver1.Solve()
+    boardSolver1.Solve(None)
     print(boardSolver1.Print())
 
