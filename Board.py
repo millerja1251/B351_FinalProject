@@ -305,15 +305,17 @@ class Line:
                 self.Cells[i].setState(CellState.UNKNOWN)
     
     def Print(self):
+        lineString = ""
         for cells in self.Cells:
             if cells.getState() == CellState.UNKNOWN:
-                print("? ")
+                lineString += " ?"
             elif cells.getState() == CellState.VOID:
-                print(" ")
+                lineString += ""
             else:
-                print(" ■")
+                lineString += " ■"
             
-        print("\n")
+        lineString + "\n"
+        print(lineString)
 
 
 class LineType(Enum):
