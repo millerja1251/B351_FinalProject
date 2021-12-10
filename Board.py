@@ -288,8 +288,9 @@ class Line:
         for i in range(0, len(activeLine)):
             if activeLine[i].getState() != CellState.UNKNOWN:
                 trueList.append(activeLine[i])
-        for i in range(0, len(activeLine)):
-            if self.Cells[i].getState() != activeLine[i].getState():
+        
+        for i in range(0, len(trueList)):
+            if self.Cells[i].getState() != trueList[i].getState():
                 return False
         return True
         
@@ -335,6 +336,7 @@ class ActiveLine(Line):
         self.CandidateSolutions = Rules.GenerateCandidates()
         self.CandidateCount = len(self.CandidateSolutions)
         self.Length = len(Cells)
+        self.ReviewCandidates()
     
     def isValid(self):
         if len(self.CandidateSolutions) > 0:
