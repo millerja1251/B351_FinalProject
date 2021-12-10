@@ -1,6 +1,7 @@
-#from _typeshed import Self
+import time
 from enum import Enum
 import enum
+import copy
 
 class CellState(Enum):
     UNKNOWN = 2
@@ -279,16 +280,19 @@ class Line:
 
     def isCandidateSolutionFor(self, activeLine):
 
+        if(len(activeLine) != len(self.Cells)):
+            raise Exception("Bruh")
+
         trueList = []
 
-        for i in range(0, activeLine.Length - 1):
-            if activeLine.Cells[i] == CellState.UNKNOWN:
+        for i in range(0, len(activeLine)):
+            if activeLine[i].getState() != CellState.UNKNOWN:
+                trueList.append(activeLine[i])
+        for i in range(0, len(activeLine)):
+            if self.Cells[i].getState() != activeLine[i].getState():
                 return False
-            if self.Cells[i].getState() == activeLine.Cells[i].getState():
-                trueList.append(True)
+        return True
         
-        if all(trueList):
-            return True
 
 
     def And(self, otherLine):
@@ -352,11 +356,10 @@ class ActiveLine(Line):
     def ReviewCandidates(self):
         temp = []
         for i in self.CandidateSolutions:
-            x = lambda a : a.IsCandidateSolutionFor(self)
-            if(x == True):
+            if(i.isCandidateSolutionFor(self.Cells) == True):
                 temp.append(i)
         
-        self.CandidateSolutions = temp           
+        self.CandidateSolutions = temp        
 
     def GetDeterminableCells(self):
         if (not self.isValid()):
@@ -545,9 +548,26 @@ class BoardLogic(BoardStructure):
         self.Columns = self.board.Columns
         
     def Solve(self, context):
+        print(self.board.RowCount)
+        print(self.board.ColumnCount)
+        for j in range(5):
+            for k in range(5):
+                print(self.board.Matrix[j][k].getState())
+        for j in self.board.ActiveLines:
+            print(j.Rules.Rules)
+            print(j.CandidateSolutions)
+        print("\n")
         if(context == None):
             self.SetDeterminableCells()
-
+        print(self.board.RowCount)
+        print(self.board.ColumnCount)
+        for j in range(5):
+            for k in range(5):
+                print(self.board.Matrix[j][k].getState())
+        for j in self.board.ActiveLines:
+            print(j.Rules.Rules)
+            print(j.CandidateSolutions)
+        
         if(self.IsValid and not self.IsSolved):
             undeterminedLines = []
             for i in self.board.ActiveLines:
@@ -564,7 +584,8 @@ class BoardLogic(BoardStructure):
             candidatesCount = len(candidateSolutions)
 
             for i in range(candidatesCount):
-                speculativeBoard = BoardLogic(self.board)
+                tempCopy = copy.deepcopy(self.board)
+                speculativeBoard = BoardLogic(tempCopy)
                 speculativeBoard.SetLineSolution(speculationTarget.Type, speculationTarget.Index, candidateSolutions[i])
                 speculativeContext = SpeculativeCallContext()
                 if(context == None):
@@ -574,6 +595,7 @@ class BoardLogic(BoardStructure):
                     speculativeContext.depth = context.depth + 1
                 speculativeContext.optionIndex = i
                 speculativeContext.optionsCount = candidatesCount
+
 
                 speculativeBoard.Solve(speculativeContext)
                 if(speculativeBoard.IsValid and speculativeBoard.IsSolved):
@@ -747,6 +769,9 @@ if __name__ == "__main__":
 
     board1 = BoardStructure(puzzle1, None)
     boardSolver1 = BoardLogic(board1)
+    #t0 = time.perf_counter_ns()
     boardSolver1.Solve(None)
-    print(boardSolver1.Print())
+    #t1 = time.perf_counter_ns()
+    #boardSolver1.Print()
+    #print(t1-t0)
 
