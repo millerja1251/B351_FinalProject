@@ -163,7 +163,7 @@ class LineRule:
         headRule = gapRules[0]
         headValues = range(headRule[0], (headRule[1] - headRule[0]) + 2)
 
-        for headValue in headValues:
+        for headValue in range(headRule[0], (headRule[1] - headRule[0]) + 2):
         
             innerGapRules = gapRules[1:]
             nextGapsToBeAllocated = gapsToBeAllocated - headValue
@@ -575,12 +575,14 @@ class BoardLogic(BoardStructure):
                     undeterminedLines.append(i)
             
             speculationTarget = undeterminedLines[0]
+                
             for i in undeterminedLines[1:]:
                 if speculationTarget.CandidateCount >  i.CandidateCount:
                     speculationTarget = i
                     speculationTarget.CandidateSolutions = i.Rules.GenerateCandidates()
 
             candidateSolutions = speculationTarget.CandidateSolutions
+
             candidatesCount = len(candidateSolutions)
 
             for i in range(candidatesCount):
