@@ -307,16 +307,15 @@ class Line:
     def Print(self):
         lineString = ""
         for cells in self.Cells:
-
-            if cells == CellState.UNKNOWN:
-                lineString + "?"
-            elif cells == CellState.VOID:
-                lineString + " "
+            if cells.getState() == CellState.UNKNOWN:
+                lineString += " ?"
+            elif cells.getState() == CellState.VOID:
+                lineString += ""
             else:
-                lineString + " ■"
+                lineString += " ■"
             
         lineString + "\n"
-        return lineString
+        print(lineString)
 
 
 class LineType(Enum):
@@ -336,13 +335,15 @@ class ActiveLine(Line):
     def isValid(self):
         if len(self.CandidateSolutions) > 0:
             return True
-        return False
+        else:
+            return False
 
     def isSet(self):
         for cell in self.Cells:
             if(cell.getState() == CellState.UNKNOWN):
                 return False
-        return True
+        else:
+            return True
 
     def isSolved(self):
         tempLine = Line(1, self.Cells, None)
@@ -407,13 +408,12 @@ class BoardStructure:
             self.RowCount = puzzle.RowCount
             self.ColumnCount = puzzle.ColumnCount
 
-            self.Matrix = [[] for i in range(self.RowCount + 1)]
+            self.Matrix = [[] for i in range(self.RowCount)]
             for rowIndex in range(self.RowCount):
                 for columnIndex in range(self.ColumnCount):
                     self.Matrix[rowIndex].append(Cell(CellState.UNKNOWN))
                     self.Matrix[rowIndex][columnIndex].row = rowIndex
                     self.Matrix[rowIndex][columnIndex].column = columnIndex
-            
             self.Columns = self.GatherColumns()
             self.Rows = self.GatherRows()
             self.ActiveLines = []
@@ -541,22 +541,25 @@ class BoardLogic(BoardStructure):
             if i.isSolved() == False:
                 self.IsSolved = False
                 break
-        self.board = board
-    
-    def Solve(self, context = None):
+
+        self.Columns = self.board.Columns
+        
+    def Solve(self, context):
         if(context == None):
             self.SetDeterminableCells()
 
+        if(self.IsValid and not self.IsSolved):
             undeterminedLines = []
             for i in self.board.ActiveLines:
                 if i.isSet() == False:
                     undeterminedLines.append(i)
-        
+            
             speculationTarget = undeterminedLines[0]
                 
             for i in undeterminedLines[1:]:
                 if speculationTarget.CandidateCount >  i.CandidateCount:
                     speculationTarget = i
+                    speculationTarget.CandidateSolutions = i.Rules.GenerateCandidates()
 
             candidateSolutions = speculationTarget.CandidateSolutions
 
@@ -565,18 +568,18 @@ class BoardLogic(BoardStructure):
             for i in range(candidatesCount):
                 speculativeBoard = BoardLogic(self.board)
                 speculativeBoard.SetLineSolution(speculationTarget.Type, speculationTarget.Index, candidateSolutions[i])
-
                 speculativeContext = SpeculativeCallContext()
-                if(context.depth != None):
+                if(context == None):
+                    context = speculativeContext
+                    context.depth = 1
+                elif(context.depth != None):
                     speculativeContext.depth = context.depth + 1
-                else:
-                    speculativeContext.depth = 1
                 speculativeContext.optionIndex = i
                 speculativeContext.optionsCount = candidatesCount
 
                 speculativeBoard.Solve(speculativeContext)
                 if(speculativeBoard.IsValid and speculativeBoard.IsSolved):
-                    return speculativeBoard
+                    self.board = speculativeBoard.board
         
     def SetDeterminableCells(self):
         for i in self.board.ActiveLines:
@@ -746,6 +749,6 @@ if __name__ == "__main__":
 
     board1 = BoardStructure(puzzle1, None)
     boardSolver1 = BoardLogic(board1)
-    boardSolver1 = boardSolver1.Solve()
+    boardSolver1.Solve(None)
     print(boardSolver1.Print())
 
