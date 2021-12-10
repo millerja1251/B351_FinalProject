@@ -288,10 +288,10 @@ class Line:
         for i in range(0, len(activeLine)):
             if activeLine[i].getState() != CellState.UNKNOWN:
                 trueList.append(activeLine[i])
-        for i in range(0, len(activeLine)):
-            if self.Cells[i].getState() != activeLine[i].getState():
+        
+        for i in range(0, len(trueList)):
+            if self.Cells[i].getState() != trueList[i].getState():
                 return False
-        print(trueList)
         return True
         
 
@@ -412,7 +412,7 @@ class BoardPuzzle:
 
 class BoardStructure:
 
-    def __init__(self, puzzle, copySource):
+    def __init__(self, puzzle):
         if(puzzle != None):
             self.Puzzle = puzzle
             self.RowCount = puzzle.RowCount
@@ -432,33 +432,6 @@ class BoardStructure:
                 self.ActiveLines.append(i)
             for i in self.Rows:
                 self.ActiveLines.append(i)
-
-            # for i in self.ActiveLines:
-            #     for j in i.Cells:
-            #         print(j.getState())
-
-        
-        # if(copySource != None):
-        #     self.Puzzle = copySource.Puzzle
-        #     self.RowCount = copySource.RowCount
-        #     self.ColumnCount = copySource.ColumnCount
-
-        #     self.Matrix = [[] for i in range(self.RowCount)]
-        #     for rowIndex in range(self.RowCount):
-        #         for columnIndex in range(self.ColumnCount):
-        #             otherCell = copySource.Matrix[rowIndex][columnIndex]
-        #             self.Matrix[rowIndex][columnIndex] = Cell(otherCell.getState())
-        #             self.Matrix[rowIndex][columnIndex].row = rowIndex
-        #             self.Matrix[rowIndex][columnIndex].column = columnIndex
-            
-        #     self.Columns = self.CopyColumns(copySource)
-        #     self.Rows = self.CopyRows(copySource)
-        #     self.ActiveLines = []
-
-        #     for i in self.Columns:
-        #         self.ActiveLines.append(i)
-        #     for i in self.Rows:
-        #         self.ActiveLines.append(i)
     
     def GatherColumns(self):
         columns = []
@@ -780,7 +753,7 @@ if __name__ == "__main__":
     puzzle1.setColumns(columnRules1)
     puzzle1.setRows(rowRules1)
 
-    board1 = BoardStructure(puzzle1, None)
+    board1 = BoardStructure(puzzle1)
     boardSolver1 = BoardLogic(board1)
     #t0 = time.perf_counter_ns()
     boardSolver1.Solve(VerboseLevel.SILENT, None)
