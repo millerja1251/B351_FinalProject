@@ -291,6 +291,7 @@ class Line:
         for i in range(0, len(activeLine)):
             if self.Cells[i].getState() != activeLine[i].getState():
                 return False
+        print(trueList)
         return True
         
 
@@ -335,6 +336,11 @@ class ActiveLine(Line):
         self.CandidateSolutions = Rules.GenerateCandidates()
         self.CandidateCount = len(self.CandidateSolutions)
         self.Length = len(Cells)
+        self.skipReview = False
+        self.ReviewCandidates()
+        
+        if(not self.skipReview):
+            self.ReviewCandidates()
     
     def isValid(self):
         if len(self.CandidateSolutions) > 0:
@@ -375,11 +381,12 @@ class ActiveLine(Line):
         if(line.Length != self.Length):
             raise ValueError("Lines must be of the same length")
 
+        self.skipReview = True
         for i in range(0, self.Length):
             newState = line.Cells[i].getState()
             if(newState != CellState.UNKNOWN):
                 self.Cells[i].setState(newState)
-        
+        self.skipReview = False
         self.ReviewCandidates()
 
 class BoardPuzzle:
@@ -591,8 +598,6 @@ class BoardLogic(BoardStructure):
                 speculativeContext.optionIndex = i
                 speculativeContext.optionsCount = candidatesCount
                 
-                for i in self.board.ActiveLines:
-                    print(i.CandidateSolutions)
                 speculativeBoard.Solve(verboseLevel, speculativeContext)
                 if(speculativeBoard.IsValid and speculativeBoard.IsSolved):
                     speculativeBoardCopy = copy.deepcopy(speculativeBoard)
