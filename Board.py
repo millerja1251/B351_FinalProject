@@ -542,12 +542,14 @@ class BoardLogic(BoardStructure):
             if i.isSolved() == False:
                 self.IsSolved = False
                 break
-        self.board = board
-    
+
+        self.Columns = self.board.Columns
+        
     def Solve(self, context = None):
         if(context == None):
             self.SetDeterminableCells()
 
+        if(self.IsValid and not self.IsSolved):
             undeterminedLines = []
             for i in self.board.ActiveLines:
                 if i.isSet() == False:
@@ -567,10 +569,11 @@ class BoardLogic(BoardStructure):
                 speculativeBoard.SetLineSolution(speculationTarget.Type, speculationTarget.Index, candidateSolutions[i])
 
                 speculativeContext = SpeculativeCallContext()
-                if(context.depth != None):
+                if(context == None):
+                    context = speculativeContext
+                    context.depth = 1
+                elif(context.depth != None):
                     speculativeContext.depth = context.depth + 1
-                else:
-                    speculativeContext.depth = 1
                 speculativeContext.optionIndex = i
                 speculativeContext.optionsCount = candidatesCount
 
