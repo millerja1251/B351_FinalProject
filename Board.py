@@ -280,14 +280,14 @@ class Line:
 
     def isCandidateSolutionFor(self, activeLine):
 
-        if(len(activeLine) != len(self.Cells)):
+        if(activeLine.Length != self.Length):
             raise Exception("Bruh")
 
         trueList = []
 
-        for i in range(0, len(activeLine)):
-            if activeLine[i].getState() != CellState.UNKNOWN:
-                trueList.append(activeLine[i])
+        for i in range(0, activeLine.Length):
+            if activeLine.Cells[i].getState() != CellState.UNKNOWN:
+                trueList.append(activeLine.Cells[i])
         
         for i in range(0, len(trueList)):
             if self.Cells[i].getState() != trueList[i].getState():
@@ -297,7 +297,6 @@ class Line:
 
 
     def And(self, otherLine):
-
         if self.Length != otherLine.Length:
             raise Exception("The Lines don't have same length")
         
@@ -362,7 +361,7 @@ class ActiveLine(Line):
     def ReviewCandidates(self):
         temp = []
         for i in self.CandidateSolutions:
-            if(i.isCandidateSolutionFor(self.Cells) == True):
+            if(i.isCandidateSolutionFor(self) == True):
                 temp.append(i)
         
         self.CandidateSolutions = temp        
@@ -412,11 +411,11 @@ class BoardPuzzle:
 
 class BoardStructure:
 
-    def __init__(self, puzzle):
+    def __init__(self, puzzle, copySource):
         if(puzzle != None):
             self.Puzzle = puzzle
-            self.RowCount = puzzle.RowCount
-            self.ColumnCount = puzzle.ColumnCount
+            self.RowCount = self.Puzzle.RowCount
+            self.ColumnCount = self.Puzzle.ColumnCount
 
             self.Matrix = [[] for i in range(self.RowCount)]
             for rowIndex in range(self.RowCount):
@@ -432,7 +431,30 @@ class BoardStructure:
                 self.ActiveLines.append(i)
             for i in self.Rows:
                 self.ActiveLines.append(i)
-    
+        
+        if(copySource != None):
+            self.Puzzle = copySource.Puzzle
+            self.RowCount = self.Puzzle.RowCount
+            self.ColumnCount = self.Puzzle.ColumnCount
+            self.Matrix = [[] for i in range(self.RowCount)]
+            for rowIndex in range(self.RowCount):
+                for columnIndex in range(self.ColumnCount):
+                    otherCell = copySource.Matrix[rowIndex][columnIndex]
+                    self.Matrix[rowIndex].append(Cell(otherCell.getState()))
+                    self.Matrix[rowIndex][columnIndex].row = rowIndex
+                    self.Matrix[rowIndex][columnIndex].column = columnIndex
+            
+            self.Columns = self.CopyColumns(copySource)
+            self.Rows = self.CopyRows(copySource)
+            self.ActiveLines = []
+
+            for i in self.Columns:
+                self.ActiveLines.append(i)
+            for i in self.Rows:
+                self.ActiveLines.append(i)
+
+
+
     def GatherColumns(self):
         columns = []
 
@@ -468,7 +490,8 @@ class BoardStructure:
             for rowIndex in range(self.RowCount):
                 columnCells.append(self.Matrix[rowIndex][columnIndex])
             
-            columns.append(ActiveLine(columnCells, copySource.Columns[columnIndex]))
+            tempActiveLine = copySource.Columns[columnIndex]
+            columns.append(ActiveLine(columnCells, tempActiveLine.Rules, tempActiveLine.Type, tempActiveLine.Index))
         
         return columns
     
@@ -479,7 +502,8 @@ class BoardStructure:
             for columnIndex in range(self.ColumnCount):
                 rowCells.append(self.Matrix[rowIndex][columnIndex])
             
-            rows.append(ActiveLine(rowCells, copySource.Rows[rowIndex]))
+            tempActiveLine = copySource.Rows[rowIndex]
+            rows.append(ActiveLine(rowCells, tempActiveLine.Rules, tempActiveLine.Type, tempActiveLine.Index))
         
         return rows
 
@@ -558,9 +582,9 @@ class BoardLogic(BoardStructure):
             candidatesCount = len(candidateSolutions)
 
             for i in range(candidatesCount):
-                tempCopy = copy.deepcopy(self.board)
-                speculativeBoard = BoardLogic(tempCopy)
+                speculativeBoard = BoardLogic(BoardStructure(None, self.board))
                 speculativeBoard.SetLineSolution(speculationTarget.Type, speculationTarget.Index, candidateSolutions[i])
+                
                 
                 speculativeContext = SpeculativeCallContext()
                 if(context == None):
@@ -753,11 +777,7 @@ if __name__ == "__main__":
     puzzle1.setColumns(columnRules1)
     puzzle1.setRows(rowRules1)
 
-    board1 = BoardStructure(puzzle1)
+    board1 = BoardStructure(puzzle1, None)
     boardSolver1 = BoardLogic(board1)
-    #t0 = time.perf_counter_ns()
     boardSolver1.Solve(VerboseLevel.SILENT, None)
-    #t1 = time.perf_counter_ns()
-    boardSolver1.Print()
-    #print(t1-t0)
-
+    #boardSolver1.Print()
