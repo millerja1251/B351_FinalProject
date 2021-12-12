@@ -61,6 +61,12 @@ class LineRule:
         else:
             return self.innerRules() + 1
     
+    def maxGaps(self):
+        if(self.minSpace() < self.LineLength):
+            return self.minGaps() + min(self.LineLength - self.minSpace(), self.outerRules)
+        else:
+            return self.minGaps()
+    
     def isEmpty(self):
         if(len(self.Rules) <= 0 or self.Rules[0] == 0):
             return True
@@ -71,7 +77,7 @@ class LineRule:
         return self.minSpace() <= self.LineLength
     
     def isTrivial(self):
-        return self.isEmpty() or (self.isLegal() and self.minSpace() >= self.LineLength)
+        return self.isEmpty() or (self.isLegal() and (self.minGaps() == self.maxGaps))
     
     def getTrivialSolution(self):
 
@@ -79,18 +85,18 @@ class LineRule:
                 return None
 
         if(self.isEmpty()):
-            cells = [Cell(CellState.VOID)] * self.LineLength
+            cells = [Cell(CellState.VOID) for i in range(self.LineLength)]
             return Line(1, cells, None)
 
-        solution = [Cell(CellState.UNKNOWN)] * self.LineLength
+        solution = [Cell(CellState.UNKNOWN) for i in range(self.LineLength)]
         lineIndex = 0
-        for i in range(len(self.Rules)):
-            for j in range(self.Rules[i]):
+        for blockIndex in range(len(self.Rules)):
+            for fillingIndex in range(self.Rules[blockIndex]):
 
                 solution[lineIndex] = Cell(CellState.FILLED)
                 lineIndex += 1
             
-            if (i < len(self.Rules) - 1):
+            if (blockIndex < len(self.Rules) - 1):
                 solution[lineIndex] = Cell(CellState.VOID)
                 lineIndex += 1
             
@@ -103,17 +109,17 @@ class LineRule:
         else:
             temp = True
             for i in range(0, len(lineBlocks)):
-                if(lineBlocks[i] <= self.Rules[i]):
+                if(lineBlocks[i] > self.Rules[i]):
                     temp = False
                     break
             return temp
-        return Line(solution)
     
     def checkSolution(self, line):
         if(self.isEmpty()):
             for i in range(len(line.Cells)):
-                line.Cells[i] = Cell(CellState.VOID)
-            return line
+                if(line.Cells[i].getState() != CellState.VOID):
+                    return False
+            return True
         
         lineBlocks = line.computeBlocks()
         if (len(self.Rules) != len(lineBlocks)):
@@ -129,7 +135,7 @@ class LineRule:
             return temp
     
     def GenerateCandidates(self):
-        if (self.isTrivial()):
+        if(self.isTrivial()):
             temp = [self.getTrivialSolution()]
             return temp
         gapRules = self.GetGapRules()
@@ -140,15 +146,15 @@ class LineRule:
         voidsToAllocate = self.LineLength - self.filledCells() - self.innerGaps()
         gapRules = []
         
-        newTuple = (0, voidsToAllocate)
-        gapRules.append(newTuple)
+        newTuple1 = (0, voidsToAllocate)
+        gapRules.append(newTuple1)
 
         for i in range(self.innerGaps()):
-            newTuple = (1, 1 + voidsToAllocate)
-            gapRules.append(newTuple)
+            newTuple2 = (1, 1 + voidsToAllocate)
+            gapRules.append(newTuple2)
 
-        newTuple = (0, voidsToAllocate)
-        gapRules.append(newTuple)
+        newTuple3 = (0, voidsToAllocate)
+        gapRules.append(newTuple3)
 
         return gapRules
 
@@ -163,7 +169,7 @@ class LineRule:
         headRule = gapRules[0]
         headValues = range(headRule[0], (headRule[1] - headRule[0]) + 2)
 
-        for headValue in range(headRule[0], (headRule[1] - headRule[0]) + 2):
+        for headValue in headValues:
         
             innerGapRules = gapRules[1:]
             nextGapsToBeAllocated = gapsToBeAllocated - headValue
@@ -194,10 +200,11 @@ class Line:
 
         self.Cells = []
 
+        #if it is a list of cells
         if determiningNumber == 1:
             self.Cells = inputOne
-            self.Length = len(inputOne)
 
+        #if it is a length with a cellstate
         elif determiningNumber == 2:
             cellList = []
 
@@ -206,22 +213,15 @@ class Line:
         
             self.Cells = cellList
 
-        elif determiningNumber == 3:
-            self.Cells = inputOne
-
-        elif determiningNumber == 4:
-            for i in range(0, len(inputOne) + 1):
-                self.Cells[i] = Cell(inputOne[i])
-
+        #If we want to copy
         elif determiningNumber == 5:
-
-            for i in range(0, inputOne.Length):
+            for i in range(0, inputOne.Length()):
                 state = inputOne.Cells[i].getState()
                 self.Cells.append(Cell(state))
 
+        #Rules is input one, gap is input two
         elif determiningNumber == 6:
-
-            if len(inputOne) != len(inputTwo) - 1:
+            if len(inputTwo) != len(inputOne) + 1:
                 raise ValueError("Gap length must be greater than blocksRule by 1")
 
             cellList = []
@@ -234,8 +234,8 @@ class Line:
 
             self.Cells = cellList
 
-        self.Length = len(self.Cells)
-
+    def Length(self):
+        return len(self.Cells)
 
     def fillGap(self, gapSize):
         cells = []
@@ -260,9 +260,9 @@ class Line:
         nextBlock = 0
         blockActive = False
 
-        for i in range(0, self.Length):
+        for lineIndex in range(0, len(self.Cells)):
 
-            if(self.Cells[i].getState() == 1):
+            if(self.Cells[lineIndex].getState() == CellState.FILLED):
 
                 if blockActive:
                     lineBlocks[nextBlock - 1] += 1
@@ -272,36 +272,32 @@ class Line:
                     nextBlock += 1
                     blockActive = True
             else:
-
                 if blockActive:
                     blockActive = False
             
         return lineBlocks
 
     def isCandidateSolutionFor(self, activeLine):
-
-        if(len(activeLine) != len(self.Cells)):
+        if(activeLine.Length() != self.Length()):
             raise Exception("Bruh")
 
-        trueList = []
-
-        for i in range(0, len(activeLine)):
-            if activeLine[i].getState() != CellState.UNKNOWN:
-                trueList.append(activeLine[i])
-        
-        for i in range(0, len(trueList)):
-            if self.Cells[i].getState() != trueList[i].getState():
-                return False
-        return True
+        temp = True
+        for i in range(0, activeLine.Length()):
+            if activeLine.Cells[i].getState() != CellState.UNKNOWN:
+                if activeLine.Cells[i].getState() == self.Cells[i].getState():
+                    temp = True
+                else:
+                    temp = False
+                    break
+        return temp
         
 
 
     def And(self, otherLine):
-
-        if self.Length != otherLine.Length:
+        if self.Length() != otherLine.Length():
             raise Exception("The Lines don't have same length")
         
-        for i in range(0, self.Length):
+        for i in range(0, self.Length()):
             localState = self.Cells[i].getState()
             otherState = otherLine.Cells[i].getState()
             if localState == otherState:
@@ -315,9 +311,11 @@ class Line:
             if cells.getState() == CellState.UNKNOWN:
                 lineString += " ?"
             elif cells.getState() == CellState.VOID:
-                lineString += ""
-            else:
+                lineString += "  "
+            elif cells.getState() == CellState.FILLED:
                 lineString += " ■"
+            else:
+                lineString += " X"
             
         lineString + "\n"
         print(lineString)
@@ -328,16 +326,35 @@ class LineType(Enum):
     ROW = 1
 
 class ActiveLine(Line):
-    def __init__(self, Cells, Rules, Type, Index):
-        self.Type = Type
-        self.Index = Index
-        self.Rules = Rules
-        self.Cells = Cells
-        self.CandidateSolutions = Rules.GenerateCandidates()
-        self.CandidateCount = len(self.CandidateSolutions)
-        self.Length = len(Cells)
-        self.ReviewCandidates()
+    def __init__(self, Cells, Rules, Type, Index, CopySource):
+        if(CopySource == None):
+            self.Type = Type
+            self.Index = Index
+            self.Rules = Rules
+            self.CandidateSolutions = Rules.GenerateCandidates()
+            self.skipReview = False
+            self.Cells = Cells
+            self.ReviewCandidates()
+        
+            if(not self.skipReview):
+                self.ReviewCandidates()
+        else:
+            self.Type = CopySource.Type
+            self.Index = CopySource.Index
+            self.Rules = CopySource.Rules
+            self.CandidateSolutions = CopySource.CandidateSolutions
+            self.skipReview = False
+            self.Cells = Cells
+
+            if(not self.skipReview):
+                self.ReviewCandidates()
     
+    def Length(self):
+        return len(self.Cells)
+    
+    def CandidateCount(self):
+        return len(self.CandidateSolutions)
+
     def isValid(self):
         if len(self.CandidateSolutions) > 0:
             return True
@@ -348,24 +365,22 @@ class ActiveLine(Line):
         for cell in self.Cells:
             if(cell.getState() == CellState.UNKNOWN):
                 return False
-        else:
-            return True
+        return True
 
     def isSolved(self):
-        tempLine = Line(1, self.Cells, None)
-        return self.Rules.checkSolution(tempLine)
+        return self.Rules.checkSolution(self)
     
     def ReviewCandidates(self):
         temp = []
         for i in self.CandidateSolutions:
-            if(i.isCandidateSolutionFor(self.Cells) == True):
+            if(i.isCandidateSolutionFor(self) == True):
                 temp.append(i)
         
-        self.CandidateSolutions = temp        
+        self.CandidateSolutions = temp       
 
     def GetDeterminableCells(self):
         if (not self.isValid()):
-            return Line(2, self.Length, CellState.UNKNOWN)
+            return Line(2, self.Length(), CellState.UNKNOWN)
 
         determinableCells = Line(5, self.CandidateSolutions[0], None)
         for candidateSolution in self.CandidateSolutions[1:]:
@@ -374,14 +389,15 @@ class ActiveLine(Line):
         return determinableCells
     
     def ApplyLine(self, line):
-        if(line.Length != self.Length):
+        if(line.Length() != self.Length()):
             raise ValueError("Lines must be of the same length")
 
-        for i in range(0, self.Length):
+        self.skipReview = True
+        for i in range(0, self.Length()):
             newState = line.Cells[i].getState()
             if(newState != CellState.UNKNOWN):
                 self.Cells[i].setState(newState)
-        
+        self.skipReview = False
         self.ReviewCandidates()
 
 class BoardPuzzle:
@@ -410,8 +426,8 @@ class BoardStructure:
     def __init__(self, puzzle, copySource):
         if(puzzle != None):
             self.Puzzle = puzzle
-            self.RowCount = puzzle.RowCount
-            self.ColumnCount = puzzle.ColumnCount
+            self.RowCount = self.Puzzle.RowCount
+            self.ColumnCount = self.Puzzle.ColumnCount
 
             self.Matrix = [[] for i in range(self.RowCount)]
             for rowIndex in range(self.RowCount):
@@ -427,34 +443,37 @@ class BoardStructure:
                 self.ActiveLines.append(i)
             for i in self.Rows:
                 self.ActiveLines.append(i)
-
-            # for i in self.ActiveLines:
-            #     for j in i.Cells:
-            #         print(j.getState())
-
         
-        # if(copySource != None):
-        #     self.Puzzle = copySource.Puzzle
-        #     self.RowCount = copySource.RowCount
-        #     self.ColumnCount = copySource.ColumnCount
-
-        #     self.Matrix = [[] for i in range(self.RowCount)]
-        #     for rowIndex in range(self.RowCount):
-        #         for columnIndex in range(self.ColumnCount):
-        #             otherCell = copySource.Matrix[rowIndex][columnIndex]
-        #             self.Matrix[rowIndex][columnIndex] = Cell(otherCell.getState())
-        #             self.Matrix[rowIndex][columnIndex].row = rowIndex
-        #             self.Matrix[rowIndex][columnIndex].column = columnIndex
+        if(copySource != None):
+            self.Puzzle = copySource.Puzzle
+            self.RowCount = self.Puzzle.RowCount
+            self.ColumnCount = self.Puzzle.ColumnCount
+            self.Matrix = [[] for i in range(self.RowCount)]
+            for rowIndex in range(self.RowCount):
+                for columnIndex in range(self.ColumnCount):
+                    otherCell = copySource.Matrix[rowIndex][columnIndex]
+                    self.Matrix[rowIndex].append(Cell(otherCell.getState()))
+                    self.Matrix[rowIndex][columnIndex].row = rowIndex
+                    self.Matrix[rowIndex][columnIndex].column = columnIndex
             
-        #     self.Columns = self.CopyColumns(copySource)
-        #     self.Rows = self.CopyRows(copySource)
-        #     self.ActiveLines = []
+            self.Columns = self.CopyColumns(copySource)
+            self.Rows = self.CopyRows(copySource)
+            self.ActiveLines = []
 
-        #     for i in self.Columns:
-        #         self.ActiveLines.append(i)
-        #     for i in self.Rows:
-        #         self.ActiveLines.append(i)
-    
+            for i in self.Columns:
+                self.ActiveLines.append(i)
+            for i in self.Rows:
+                self.ActiveLines.append(i)
+
+    def Copy(self, source):
+        if(self.Puzzle != source.board.Puzzle):
+            raise Exception("Oh Hell nah!")
+
+        for rowIndex in range(self.RowCount):
+            for columnIndex in range(self.ColumnCount):
+                otherCell = source.board.Matrix[rowIndex][columnIndex]
+                self.Matrix[rowIndex][columnIndex].setState(otherCell.getState())
+
     def GatherColumns(self):
         columns = []
 
@@ -465,7 +484,7 @@ class BoardStructure:
             
             columnRule = LineRule(self.Puzzle.ColumnRules[columnIndex], self.RowCount)
             
-            columns.append(ActiveLine(columnCells, columnRule, LineType.COLUMN, columnIndex))
+            columns.append(ActiveLine(columnCells, columnRule, LineType.COLUMN, columnIndex, None))
         
         return columns
 
@@ -479,7 +498,7 @@ class BoardStructure:
             
             rowRule = LineRule(self.Puzzle.RowRules[rowIndex], self.ColumnCount)
 
-            rows.append(ActiveLine(rowCells, rowRule, LineType.ROW, rowIndex))
+            rows.append(ActiveLine(rowCells, rowRule, LineType.ROW, rowIndex, None))
         
         return rows
 
@@ -490,7 +509,7 @@ class BoardStructure:
             for rowIndex in range(self.RowCount):
                 columnCells.append(self.Matrix[rowIndex][columnIndex])
             
-            columns.append(ActiveLine(columnCells, copySource.Columns[columnIndex]))
+            columns.append(ActiveLine(columnCells, None, None, None, copySource.Columns[columnIndex]))
         
         return columns
     
@@ -501,7 +520,7 @@ class BoardStructure:
             for columnIndex in range(self.ColumnCount):
                 rowCells.append(self.Matrix[rowIndex][columnIndex])
             
-            rows.append(ActiveLine(rowCells, copySource.Rows[rowIndex]))
+            rows.append(ActiveLine(rowCells, None, None, None, copySource.Rows[rowIndex]))
         
         return rows
 
@@ -511,7 +530,7 @@ class BoardStructure:
             targetSet = self.Rows
         
         target = targetSet[0]
-        for i in targetSet[1:]:
+        for i in targetSet:
             if i.Index == lineIndex:
                 target = i
                 break
@@ -533,72 +552,66 @@ class BoardLogic(BoardStructure):
 
     def __init__(self, board):
         self.board = board
-        self.IsValid = True
-        for i in board.ActiveLines:
+
+    def IsValid(self):
+        for i in self.board.ActiveLines:
             if i.isValid() == False:
-                self.IsValid = False
-                break
-        self.IsSet = True
-        for i in board.ActiveLines:
+                return False
+        return True
+    
+    def IsSet(self):
+        for i in self.board.ActiveLines:
             if i.isSet() == False:
-                self.IsSet = False
-                break
-
-        self.IsSolved = True
-        for i in board.ActiveLines:
+                return False
+        return True
+    
+    def IsSolved(self):
+        for i in self.board.ActiveLines:
             if i.isSolved() == False:
-                self.IsSolved = False
-                break
-
-        self.Columns = self.board.Columns
+                return False
+        return True
         
     def Solve(self, verboseLevel, context):
-        if(not self.IsValid):
+        if(not self.IsValid()):
             if(verboseLevel != VerboseLevel.SILENT):
                 return
         
         if(context == None):
             self.SetDeterminableCells()
-        
+
         self.CandidateExlclusionSolve(verboseLevel)
-        
-        if(self.IsValid and not self.IsSolved):
+
+        if(self.IsValid() and not self.IsSolved()):         
             undeterminedLines = []
             for i in self.board.ActiveLines:
                 if i.isSet() == False:
                     undeterminedLines.append(i)
-            
-            speculationTarget = undeterminedLines[0]
-                
-            for i in undeterminedLines[1:]:
-                if speculationTarget.CandidateCount >  i.CandidateCount:
-                    speculationTarget = i
-                    speculationTarget.CandidateSolutions = i.Rules.GenerateCandidates()
+
+            speculationTarget = undeterminedLines[0]  
+            for i in undeterminedLines:
+                if speculationTarget.CandidateCount() >  i.CandidateCount():
+                    speculationTarget = i    
 
             candidateSolutions = speculationTarget.CandidateSolutions
-
             candidatesCount = len(candidateSolutions)
 
             for i in range(candidatesCount):
-                tempCopy = copy.deepcopy(self.board)
-                speculativeBoard = BoardLogic(tempCopy)
-                speculativeBoard.SetLineSolution(speculationTarget.Type, speculationTarget.Index, candidateSolutions[i])
-                
+                speculativeBoard = BoardLogic(BoardStructure(None, self.board))
+                speculativeBoard.board.SetLineSolution(speculationTarget.Type, speculationTarget.Index, candidateSolutions[i])
+
                 speculativeContext = SpeculativeCallContext()
                 if(context == None):
                     context = speculativeContext
-                    context.depth = 1
+                    speculativeContext.depth = 1
                 elif(context.depth != None):
                     speculativeContext.depth = context.depth + 1
                 speculativeContext.optionIndex = i
                 speculativeContext.optionsCount = candidatesCount
                 
-                for i in self.board.ActiveLines:
-                    print(i.CandidateSolutions)
                 speculativeBoard.Solve(verboseLevel, speculativeContext)
-                if(speculativeBoard.IsValid and speculativeBoard.IsSolved):
-                    speculativeBoardCopy = copy.deepcopy(speculativeBoard)
-                    self.board = speculativeBoardCopy.board
+                if(speculativeBoard.IsValid() and speculativeBoard.IsSolved()):
+                    self.board.Copy(speculativeBoard)
+                    return
         
     def SetDeterminableCells(self):
         for i in self.board.ActiveLines:
@@ -607,9 +620,9 @@ class BoardLogic(BoardStructure):
     def CandidateExlclusionSolve(self, verboseLevel):
         solvableLines = []
         for i in self.board.ActiveLines:
-            if(not i.isSet() and i.CandidateCount == 1):
+            if(not i.isSet() and len(i.CandidateSolutions) == 1):
                 solvableLines.append(i)
-        while(len(solvableLines) > 0 and self.IsValid):
+        while(len(solvableLines) > 0 and self.IsValid()):
             selectedLine = solvableLines[0]
             selectedLine.ApplyLine(selectedLine.CandidateSolutions[0])
             solvableLines.pop(0)
@@ -618,8 +631,6 @@ class BoardLogic(BoardStructure):
     def Print(self):
         for row in self.board.Rows:
             row.Print()
-    
-    
 
     def ourAlgorithm(self):
 
@@ -829,20 +840,25 @@ class BoardLogic(BoardStructure):
             self.Print()
             return self.ourAlgorithm()
 
-
-
 if __name__ == "__main__":
     puzzle1 = BoardPuzzle()
     columnRules1 = [[1],[1,1],[1,1,1],[1,3],[4]]
     rowRules1 = [[2],[1,1],[3],[1,2],[4]]
-    puzzle1.setColumns(columnRules1)
-    puzzle1.setRows(rowRules1)
+    columnRules2 = [[],[3],[3],[3],[]]
+    rowRules2 = [[],[3],[3],[3],[]]
+    columnRules3 = [[1,1],[1,3],[1],[3],[1,2]]
+    rowRules3 = [[2,2],[1],[5],[1,1],[1]]
+    columnRules4 = [[0],[1,2],[2],[2],[4]]
+    rowRules4 = [[1,1],[1,1],[2,1],[1,2],[1]]
+
+    puzzle1.setColumns(columnRules4)
+    puzzle1.setRows(rowRules4)
 
     board1 = BoardStructure(puzzle1, None)
     boardSolver1 = BoardLogic(board1)
-    #t0 = time.perf_counter_ns()
+    t0 = time.perf_counter_ns()
     boardSolver1.Solve(VerboseLevel.SILENT, None)
-    #t1 = time.perf_counter_ns()
+    t1 = time.perf_counter_ns()
+    print(t1-t0)
     boardSolver1.Print()
-    #print(t1-t0)
-
+    
