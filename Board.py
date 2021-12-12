@@ -621,25 +621,24 @@ class BoardLogic(BoardStructure):
     
     
 
-    def ourAlgorithm(self, board):
+    def ourAlgorithm(self):
 
-        if(board.IsSolved):
-            return board
+        if(self.IsSolved):
+            return self.board
     
         else:
 
-            for activeLines in board.getColumns():
+            for activeLines in self.board.Columns:
 
-                rules = activeLines.getRule()
+                rules = activeLines.Rules.Rules
                 addedRule = 0
 
                 for rule in rules:
-                    addedRule += rule
-                    addedRule + 1
+                    addedRule += rule + 1
             
-                addedRule - 1
+                addedRule -= 1
 
-                difference = board.getRowCount() - addedRule
+                difference = self.board.RowCount - addedRule
 
                 candidateRules = []
 
@@ -647,7 +646,8 @@ class BoardLogic(BoardStructure):
                     if rule > difference:
                         candidateRules.append(rule)
 
-                if rules[0] == len(activeLines):
+
+                if rules[0] == activeLines.Length:
                     for cells in activeLines.Cells:
                         cells.setState(CellState.FILLED)
 
@@ -655,118 +655,179 @@ class BoardLogic(BoardStructure):
                     for cells in activeLines.Cells:
                         cells.setState(CellState.VOID)
 
-                filledCount = 0
+                cellIndex = -1
 
-                for cells in activeLines:
-                    if cells.getState() == CellState.FILLED:
-                        filledCount += 1
-            
-                ruleSum = 0
+                blankBoard = True
 
-                for i in rules:
-                    ruleSum += i
-
-                if ruleSum == filledCount:
-                    for cells in activeLines.Cells:
-                        cells.setState(CellState.VOID)
-
-                cellIndex = 0
-
-                for rule in rules:
-
-                    if rules in candidateRules:
-                        fillAmount = rule - difference
-                    
-                        if rule == rules[0]:
-                            cellIndex += rule - 1
-                        else:
-                            cellIndex += rule
-
-                        cellIndexFilledTo = cellIndex - fillAmount
-                    
-                        for i in range(cellIndex, cellIndexFilledTo):
-                            activeLines.Cells[i].setState(CellState.FILLED)
-
-                        cellIndex += 1
-                    else:
-                        cellIndex += rule + 1
-
-                if len(rules) == len(candidateRules):
-                    for cells in activeLines:
-                        if activeLines.Cells[cells].getState() == CellState.UNKNOWN:
-                            activeLines.Cells[cells].setState(CellState.VOID)
-
-
-            for activeLines in board.getRows():
-
-                rules = activeLines.getRule()
-                addedRule = 0
-
-                for rule in rules:
-                    addedRule += rule
-                    addedRule + 1
-            
-                addedRule - 1
-
-                difference = board.getColumnCount() - addedRule
-
-                candidateRules = []
-
-                for rule in rules:
-                    if rule > difference:
-                        candidateRules.append(rule)
-            
-                if rules[0] == len(activeLines):
-                    for cells in activeLines.Cells:
-                        cells.setState(CellState.FILLED)
-
-                if len(rules) == 0:
-                    for cells in activeLines.Cells:
-                        cells.setState(CellState.VOID)
-
-                filledCount = 0
-
-                for cells in activeLines:
-                    if cells.getState() == CellState.FILLED:
-                        filledCount += 1
-            
-                ruleSum = 0
-
-                for i in rules:
-                    ruleSum += i
-
-                if ruleSum == filledCount:
-                    for cells in activeLines.Cells:
-                        cells.setState(CellState.VOID)
-
-                cellIndex = 0
-
-                for rule in rules:
-
-                    if rules in candidateRules:
-                    
-                        fillAmount = rule - difference
-                    
-                        if rule == rules[0]:
-                            cellIndex += rule - 1
-                        else:
-                            cellIndex += rule
-
-                        cellIndexFilledTo = cellIndex - fillAmount
-                    
-                        for i in range(cellIndex, cellIndexFilledTo):
-                            activeLines.Cells[i].setState(CellState.FILLED)
-
-                        cellIndex += 1
-                    else:
-                        cellIndex += rule + 1
+                for cells in activeLines.Cells:
+                    if cells.getState == CellState.VOID or cells.getState() == CellState.FILLED:
+                        blankBoard = False
+                        break
                 
-                if len(rules) == len(candidateRules):
-                    for cells in activeLines:
-                        if activeLines.Cells[cells].getState() == CellState.UNKNOWN:
-                            activeLines.Cells[cells].setState(CellState.VOID)
+                if blankBoard == True:
 
-            return self.ourAlgorithm(board)
+                    for rule in rules:
+
+                        if rule in candidateRules:
+                            fillAmount = rule - difference
+                        
+                            cellIndex += rule
+
+                            cellIndexFilledTo = cellIndex - fillAmount
+                        
+                            for i in range(cellIndex, cellIndexFilledTo, -1):
+                                activeLines.Cells[i].setState(CellState.FILLED)
+
+                            cellIndex += 1
+                        else:
+                            cellIndex += rule + 1
+                else:
+                    
+                    filledSpaces = 0
+                    unknownSpaces = 0
+
+                    for cells in activeLines.Cells:
+                        if cells.getState() == CellState.FILLED:
+                            filledSpaces += 1
+                        else:
+                            unknownSpaces += 1
+                    
+                    summedRule = 0
+
+                    for i in rules:
+                        summedRule += i
+
+                    solvableSpaces = summedRule - filledSpaces
+
+                    if solvableSpaces == unknownSpaces:
+                        for cells in activeLines.Cells:
+                            if cells.getState() == CellState.UNKNOWN:
+                                cells.setState(CellState.FILLED)
+
+
+            for activeLines in self.board.Rows:
+
+                rules = activeLines.Rules.Rules
+                addedRule = 0
+
+                for rule in rules:
+                    addedRule += rule + 1
+            
+                addedRule -= 1
+
+                difference = self.board.ColumnCount - addedRule
+
+                candidateRules = []
+
+                for rule in rules:
+                    if rule > difference:
+                        candidateRules.append(rule)
+            
+                if rules[0] == activeLines.Length:
+                    for cells in activeLines.Cells:
+                        cells.setState(CellState.FILLED)
+
+                if len(rules) == 0:
+                    for cells in activeLines.Cells:
+                        cells.setState(CellState.VOID)
+
+                filledCount = 0
+
+                for cells in activeLines.Cells:
+                    if cells.getState() == CellState.FILLED:
+                        filledCount += 1
+
+                cellIndex = -1
+
+                blankBoard = True
+
+                for cells in activeLines.Cells:
+                    if cells.getState == CellState.VOID or cells.getState() == CellState.FILLED:
+                        blankBoard = False
+                        break
+                
+                if blankBoard == True:
+
+                    for rule in rules:
+
+                        if rule in candidateRules:
+                        
+                            fillAmount = rule - difference
+
+                            cellIndex += rule
+
+                            cellIndexFilledTo = cellIndex - fillAmount
+                        
+                            for i in range(cellIndex, cellIndexFilledTo, -1):
+                                activeLines.Cells[i].setState(CellState.FILLED)
+
+                            cellIndex += 1
+                        else:
+                            cellIndex += rule + 1
+                else:
+
+                    filledSpaces = 0
+                    unknownSpaces = 0
+
+                    for cells in activeLines.Cells:
+                        if cells.getState() == CellState.FILLED:
+                            filledSpaces += 1
+                        else:
+                            unknownSpaces += 1
+                    
+                    summedRule = 0
+
+                    for i in rules:
+                        summedRule += i
+
+                    solvableSpaces = summedRule - filledSpaces
+
+                    if solvableSpaces == unknownSpaces:
+                        for cells in activeLines.Cells:
+                            if cells.getState() == CellState.UNKNOWN:
+                                cells.setState(CellState.FILLED)
+                    
+                    break
+
+
+            for activeLines in self.board.Columns:
+                
+                fillAmount = 0
+
+                for cells in activeLines.Cells:
+                    if cells.getState() == CellState.FILLED:
+                        fillAmount += 1
+                
+                addedRule = 0
+
+                for rule in activeLines.Rules.Rules:
+                    addedRule += rule
+                
+                if fillAmount == addedRule:
+                    for cell in range(0, activeLines.Length):
+                        if activeLines.Cells[cell].getState() == CellState.UNKNOWN:
+                            activeLines.Cells[cell].setState(CellState.VOID)
+            
+            for activeLines in self.board.Rows:
+                
+                fillAmount = 0
+
+                for cells in activeLines.Cells:
+                    if cells.getState() == CellState.FILLED:
+                        fillAmount += 1
+                
+                addedRule = 0
+
+                for rule in activeLines.Rules.Rules:
+                    addedRule += rule
+                
+                if fillAmount == addedRule:
+                    for cell in range(0, activeLines.Length):
+                        if activeLines.Cells[cell].getState() == CellState.UNKNOWN:
+                            activeLines.Cells[cell].setState(CellState.VOID)
+
+            self.Print()
+            return self.ourAlgorithm()
 
 
 
