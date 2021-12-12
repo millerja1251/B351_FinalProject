@@ -841,7 +841,7 @@ class BoardLogic(BoardStructure):
             return self.ourAlgorithm()
 
 if __name__ == "__main__":
-    puzzle1 = BoardPuzzle()
+    puzzle = BoardPuzzle()
     columnRules1 = [[1],[1,1],[1,1,1],[1,3],[4]]
     rowRules1 = [[2],[1,1],[3],[1,2],[4]]
     columnRules2 = [[],[3],[3],[3],[]]
@@ -850,15 +850,117 @@ if __name__ == "__main__":
     rowRules3 = [[2,2],[1],[5],[1,1],[1]]
     columnRules4 = [[0],[1,2],[2],[2],[4]]
     rowRules4 = [[1,1],[1,1],[2,1],[1,2],[1]]
+    columnRules5 = [[2],[1,1],[1,1],[3,1],[1]]
+    rowRules5 = [[1,1],[4],[1],[1,1],[1,1]]
+    columnRules6 = [[3],[1],[3],[1],[3,1]]
+    rowRules6 = [[3],[2,1],[1,1,1],[1],[1,1]]
+    columnRules7 = [[1,1],[1,1],[3],[2],[1,2]]
+    rowRules7 = [[1],[2],[3],[1,1,1],[2,1]]
+    columnRules8 = [[4],[],[2,2],[1,1],[1,3]]
+    rowRules8 = [[1,1,1],[1,2],[1,1],[1,3],[1,1]]
+    columnRules9 = [[1,1,1],[1,1],[1,1,1],[3],[1]]
+    rowRules9 = [[4],[2],[4],[],[1,1]]
+    columnRules10 = [[2,1],[1,1],[3],[2],[1,1]]
+    rowRules10 = [[2],[2,1],[1,1,1],[1],[3]]
 
-    puzzle1.setColumns(columnRules4)
-    puzzle1.setRows(rowRules4)
-
-    board1 = BoardStructure(puzzle1, None)
-    boardSolver1 = BoardLogic(board1)
+    puzzle.setColumns(columnRules1)
+    puzzle.setRows(rowRules1)
+    board = BoardStructure(puzzle, None)
+    boardSolver = BoardLogic(board)
     t0 = time.perf_counter_ns()
-    boardSolver1.Solve(VerboseLevel.SILENT, None)
+    boardSolver.Solve(VerboseLevel.SILENT, None)
     t1 = time.perf_counter_ns()
     print(t1-t0)
-    boardSolver1.Print()
+    boardSolver.Print()
+
+    
+    puzzle.setColumns(columnRules2)
+    puzzle.setRows(rowRules2)
+    board = BoardStructure(puzzle, None)
+    boardSolver = BoardLogic(board)
+    t0 = time.perf_counter_ns()
+    boardSolver.Solve(VerboseLevel.SILENT, None)
+    t1 = time.perf_counter_ns()
+    print(t1-t0)
+    boardSolver.Print()
+
+    puzzle.setColumns(columnRules3)
+    puzzle.setRows(rowRules3)
+    board = BoardStructure(puzzle, None)
+    boardSolver = BoardLogic(board)
+    t0 = time.perf_counter_ns()
+    boardSolver.Solve(VerboseLevel.SILENT, None)
+    t1 = time.perf_counter_ns()
+    print(t1-t0)
+    boardSolver.Print()
+
+    puzzle.setColumns(columnRules4)
+    puzzle.setRows(rowRules4)
+    board = BoardStructure(puzzle, None)
+    boardSolver = BoardLogic(board)
+    t0 = time.perf_counter_ns()
+    boardSolver.Solve(VerboseLevel.SILENT, None)
+    t1 = time.perf_counter_ns()
+    print(t1-t0)
+    boardSolver.Print()
+
+    puzzle.setColumns(columnRules5)
+    puzzle.setRows(rowRules5)
+    board = BoardStructure(puzzle, None)
+    boardSolver = BoardLogic(board)
+    t0 = time.perf_counter_ns()
+    boardSolver.Solve(VerboseLevel.SILENT, None)
+    t1 = time.perf_counter_ns()
+    print(t1-t0)
+    boardSolver.Print()
+
+    puzzle.setColumns(columnRules6)
+    puzzle.setRows(rowRules6)
+    board = BoardStructure(puzzle, None)
+    boardSolver = BoardLogic(board)
+    t0 = time.perf_counter_ns()
+    boardSolver.Solve(VerboseLevel.SILENT, None)
+    t1 = time.perf_counter_ns()
+    print(t1-t0)
+    boardSolver.Print()
+    
+    puzzle.setColumns(columnRules7)
+    puzzle.setRows(rowRules7)
+    board = BoardStructure(puzzle, None)
+    boardSolver = BoardLogic(board)
+    t0 = time.perf_counter_ns()
+    boardSolver.Solve(VerboseLevel.SILENT, None)
+    t1 = time.perf_counter_ns()
+    print(t1-t0)
+    boardSolver.Print()
+
+    puzzle.setColumns(columnRules8)
+    puzzle.setRows(rowRules8)
+    board = BoardStructure(puzzle, None)
+    boardSolver = BoardLogic(board)
+    t0 = time.perf_counter_ns()
+    boardSolver.Solve(VerboseLevel.SILENT, None)
+    t1 = time.perf_counter_ns()
+    print(t1-t0)
+    boardSolver.Print()
+
+    puzzle.setColumns(columnRules9)
+    puzzle.setRows(rowRules9)
+    board = BoardStructure(puzzle, None)
+    boardSolver = BoardLogic(board)
+    t0 = time.perf_counter_ns()
+    boardSolver.Solve(VerboseLevel.SILENT, None)
+    t1 = time.perf_counter_ns()
+    print(t1-t0)
+    boardSolver.Print()
+
+    puzzle.setColumns(columnRules10)
+    puzzle.setRows(rowRules10)
+    board = BoardStructure(puzzle, None)
+    boardSolver = BoardLogic(board)
+    t0 = time.perf_counter_ns()
+    boardSolver.Solve(VerboseLevel.SILENT, None)
+    t1 = time.perf_counter_ns()
+    print(t1-t0)
+    boardSolver.Print()
     
