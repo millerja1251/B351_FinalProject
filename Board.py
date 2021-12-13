@@ -634,7 +634,7 @@ class BoardLogic(BoardStructure):
 
     def ourAlgorithm(self):
 
-        if(self.IsSolved):
+        if(self.IsSolved()):
             return self.board
     
         else:
@@ -668,53 +668,21 @@ class BoardLogic(BoardStructure):
 
                 cellIndex = -1
 
-                blankBoard = True
+                for rule in rules:
 
-                for cells in activeLines.Cells:
-                    if cells.getState == CellState.VOID or cells.getState() == CellState.FILLED:
-                        blankBoard = False
-                        break
-                
-                if blankBoard == True:
-
-                    for rule in rules:
-
-                        if rule in candidateRules:
-                            fillAmount = rule - difference
-                        
-                            cellIndex += rule
-
-                            cellIndexFilledTo = cellIndex - fillAmount
-                        
-                            for i in range(cellIndex, cellIndexFilledTo, -1):
-                                activeLines.Cells[i].setState(CellState.FILLED)
-
-                            cellIndex += 1
-                        else:
-                            cellIndex += rule + 1
-                else:
+                    if rule in candidateRules:
+                        fillAmount = rule - difference
                     
-                    filledSpaces = 0
-                    unknownSpaces = 0
+                        cellIndex += rule
 
-                    for cells in activeLines.Cells:
-                        if cells.getState() == CellState.FILLED:
-                            filledSpaces += 1
-                        else:
-                            unknownSpaces += 1
+                        cellIndexFilledTo = cellIndex - fillAmount
                     
-                    summedRule = 0
+                        for i in range(cellIndex, cellIndexFilledTo, -1):
+                            activeLines.Cells[i].setState(CellState.FILLED)
 
-                    for i in rules:
-                        summedRule += i
-
-                    solvableSpaces = summedRule - filledSpaces
-
-                    if solvableSpaces == unknownSpaces:
-                        for cells in activeLines.Cells:
-                            if cells.getState() == CellState.UNKNOWN:
-                                cells.setState(CellState.FILLED)
-
+                        cellIndex += 1
+                    else:
+                        cellIndex += rule + 1
 
             for activeLines in self.board.Rows:
 
@@ -750,56 +718,23 @@ class BoardLogic(BoardStructure):
 
                 cellIndex = -1
 
-                blankBoard = True
 
-                for cells in activeLines.Cells:
-                    if cells.getState == CellState.VOID or cells.getState() == CellState.FILLED:
-                        blankBoard = False
-                        break
-                
-                if blankBoard == True:
+                for rule in rules:
 
-                    for rule in rules:
-
-                        if rule in candidateRules:
-                        
-                            fillAmount = rule - difference
-
-                            cellIndex += rule
-
-                            cellIndexFilledTo = cellIndex - fillAmount
-                        
-                            for i in range(cellIndex, cellIndexFilledTo, -1):
-                                activeLines.Cells[i].setState(CellState.FILLED)
-
-                            cellIndex += 1
-                        else:
-                            cellIndex += rule + 1
-                else:
-
-                    filledSpaces = 0
-                    unknownSpaces = 0
-
-                    for cells in activeLines.Cells:
-                        if cells.getState() == CellState.FILLED:
-                            filledSpaces += 1
-                        else:
-                            unknownSpaces += 1
+                    if rule in candidateRules:
                     
-                    summedRule = 0
+                        fillAmount = rule - difference
 
-                    for i in rules:
-                        summedRule += i
+                        cellIndex += rule
 
-                    solvableSpaces = summedRule - filledSpaces
-
-                    if solvableSpaces == unknownSpaces:
-                        for cells in activeLines.Cells:
-                            if cells.getState() == CellState.UNKNOWN:
-                                cells.setState(CellState.FILLED)
+                        cellIndexFilledTo = cellIndex - fillAmount
                     
-                    break
+                        for i in range(cellIndex, cellIndexFilledTo, -1):
+                            activeLines.Cells[i].setState(CellState.FILLED)
 
+                        cellIndex += 1
+                    else:
+                        cellIndex += rule + 1
 
             for activeLines in self.board.Columns:
                 
@@ -815,9 +750,9 @@ class BoardLogic(BoardStructure):
                     addedRule += rule
                 
                 if fillAmount == addedRule:
-                    for cell in range(0, activeLines.Length):
-                        if activeLines.Cells[cell].getState() == CellState.UNKNOWN:
-                            activeLines.Cells[cell].setState(CellState.VOID)
+                    for cell in activeLines.Cells:
+                        if cell.getState() == CellState.UNKNOWN:
+                            cell.setState(CellState.VOID)
             
             for activeLines in self.board.Rows:
                 
@@ -833,12 +768,58 @@ class BoardLogic(BoardStructure):
                     addedRule += rule
                 
                 if fillAmount == addedRule:
-                    for cell in range(0, activeLines.Length):
-                        if activeLines.Cells[cell].getState() == CellState.UNKNOWN:
-                            activeLines.Cells[cell].setState(CellState.VOID)
+                    for cell in activeLines.Cells:
+                        if cell.getState() == CellState.UNKNOWN:
+                            cell.setState(CellState.VOID)
 
-            self.Print()
-            return self.ourAlgorithm()
+            for activeLines in self.board.Columns:
+
+                filledSpaces = 0
+                unknownSpaces = 0
+
+                for cells in activeLines.Cells:
+                    if cells.getState() == CellState.FILLED:
+                        filledSpaces += 1
+                    elif cells.getState() == CellState.UNKNOWN:
+                        unknownSpaces += 1
+
+                addedRule = 0
+
+                for rule in activeLines.Rules.Rules:
+                    addedRule += rule
+                
+
+                solvableSpaces = addedRule - filledSpaces
+
+                if solvableSpaces == unknownSpaces:
+                    for cells in activeLines.Cells:
+                        if cells.getState() == CellState.UNKNOWN:
+                            cells.setState(CellState.FILLED)
+            
+            for activeLines in self.board.Rows:
+
+                filledSpaces = 0
+                unknownSpaces = 0
+
+                for cells in activeLines.Cells:
+                    if cells.getState() == CellState.FILLED:
+                        filledSpaces += 1
+                    elif cells.getState() == CellState.UNKNOWN:
+                        unknownSpaces += 1
+
+                addedRule = 0
+
+                for rule in activeLines.Rules.Rules:
+                    addedRule += rule
+
+                solvableSpaces = addedRule - filledSpaces
+
+                if solvableSpaces == unknownSpaces:
+                    for cells in activeLines.Cells:
+                        if cells.getState() == CellState.UNKNOWN:
+                            cells.setState(CellState.FILLED)
+
+            return self.board
 
 if __name__ == "__main__":
     puzzle = BoardPuzzle()
@@ -863,6 +844,7 @@ if __name__ == "__main__":
     columnRules10 = [[2,1],[1,1],[3],[2],[1,1]]
     rowRules10 = [[2],[2,1],[1,1,1],[1],[3]]
 
+    print("BackTracking Algoritm")
     puzzle.setColumns(columnRules1)
     puzzle.setRows(rowRules1)
     board = BoardStructure(puzzle, None)
@@ -873,94 +855,115 @@ if __name__ == "__main__":
     print(t1-t0)
     boardSolver.Print()
 
-    
-    puzzle.setColumns(columnRules2)
-    puzzle.setRows(rowRules2)
-    board = BoardStructure(puzzle, None)
-    boardSolver = BoardLogic(board)
+    print("Our Algorithm")
+    puzzle.setColumns(columnRules1)
+    puzzle.setRows(rowRules1)
+    board1 = BoardStructure(puzzle, None)
+    boardSolver1 = BoardLogic(board1)
     t0 = time.perf_counter_ns()
-    boardSolver.Solve(VerboseLevel.SILENT, None)
-    t1 = time.perf_counter_ns()
-    print(t1-t0)
-    boardSolver.Print()
+    boardSolver1.ourAlgorithm()
 
-    puzzle.setColumns(columnRules3)
-    puzzle.setRows(rowRules3)
-    board = BoardStructure(puzzle, None)
-    boardSolver = BoardLogic(board)
-    t0 = time.perf_counter_ns()
-    boardSolver.Solve(VerboseLevel.SILENT, None)
+    boardSolver1.Solve(VerboseLevel.SILENT, None)
     t1 = time.perf_counter_ns()
-    print(t1-t0)
-    boardSolver.Print()
+    print(t1 - t0)
+    boardSolver1.Print()
 
-    puzzle.setColumns(columnRules4)
-    puzzle.setRows(rowRules4)
-    board = BoardStructure(puzzle, None)
-    boardSolver = BoardLogic(board)
-    t0 = time.perf_counter_ns()
-    boardSolver.Solve(VerboseLevel.SILENT, None)
-    t1 = time.perf_counter_ns()
-    print(t1-t0)
-    boardSolver.Print()
+    # print("BackTracking Algoritm")
+    # puzzle.setColumns(columnRules2)
+    # puzzle.setRows(rowRules2)
+    # board = BoardStructure(puzzle, None)
+    # boardSolver = BoardLogic(board)
+    # t0 = time.perf_counter_ns()
+    # boardSolver.Solve(VerboseLevel.SILENT, None)
+    # t1 = time.perf_counter_ns()
+    # print(t1-t0)
+    # boardSolver.Print()
 
-    puzzle.setColumns(columnRules5)
-    puzzle.setRows(rowRules5)
-    board = BoardStructure(puzzle, None)
-    boardSolver = BoardLogic(board)
-    t0 = time.perf_counter_ns()
-    boardSolver.Solve(VerboseLevel.SILENT, None)
-    t1 = time.perf_counter_ns()
-    print(t1-t0)
-    boardSolver.Print()
+    # print("BackTracking Algoritm")
+    # puzzle.setColumns(columnRules3)
+    # puzzle.setRows(rowRules3)
+    # board = BoardStructure(puzzle, None)
+    # boardSolver = BoardLogic(board)
+    # t0 = time.perf_counter_ns()
+    # boardSolver.Solve(VerboseLevel.SILENT, None)
+    # t1 = time.perf_counter_ns()
+    # print(t1-t0)
+    # boardSolver.Print()
 
-    puzzle.setColumns(columnRules6)
-    puzzle.setRows(rowRules6)
-    board = BoardStructure(puzzle, None)
-    boardSolver = BoardLogic(board)
-    t0 = time.perf_counter_ns()
-    boardSolver.Solve(VerboseLevel.SILENT, None)
-    t1 = time.perf_counter_ns()
-    print(t1-t0)
-    boardSolver.Print()
-    
-    puzzle.setColumns(columnRules7)
-    puzzle.setRows(rowRules7)
-    board = BoardStructure(puzzle, None)
-    boardSolver = BoardLogic(board)
-    t0 = time.perf_counter_ns()
-    boardSolver.Solve(VerboseLevel.SILENT, None)
-    t1 = time.perf_counter_ns()
-    print(t1-t0)
-    boardSolver.Print()
+    # print("BackTracking Algoritm")
+    # puzzle.setColumns(columnRules4)
+    # puzzle.setRows(rowRules4)
+    # board = BoardStructure(puzzle, None)
+    # boardSolver = BoardLogic(board)
+    # t0 = time.perf_counter_ns()
+    # boardSolver.Solve(VerboseLevel.SILENT, None)
+    # t1 = time.perf_counter_ns()
+    # print(t1-t0)
+    # boardSolver.Print()
 
-    puzzle.setColumns(columnRules8)
-    puzzle.setRows(rowRules8)
-    board = BoardStructure(puzzle, None)
-    boardSolver = BoardLogic(board)
-    t0 = time.perf_counter_ns()
-    boardSolver.Solve(VerboseLevel.SILENT, None)
-    t1 = time.perf_counter_ns()
-    print(t1-t0)
-    boardSolver.Print()
+    # print("BackTracking Algoritm")
+    # puzzle.setColumns(columnRules5)
+    # puzzle.setRows(rowRules5)
+    # board = BoardStructure(puzzle, None)
+    # boardSolver = BoardLogic(board)
+    # t0 = time.perf_counter_ns()
+    # boardSolver.Solve(VerboseLevel.SILENT, None)
+    # t1 = time.perf_counter_ns()
+    # print(t1-t0)
+    # boardSolver.Print()
 
-    puzzle.setColumns(columnRules9)
-    puzzle.setRows(rowRules9)
-    board = BoardStructure(puzzle, None)
-    boardSolver = BoardLogic(board)
-    t0 = time.perf_counter_ns()
-    boardSolver.Solve(VerboseLevel.SILENT, None)
-    t1 = time.perf_counter_ns()
-    print(t1-t0)
-    boardSolver.Print()
+    # print("BackTracking Algoritm")
+    # puzzle.setColumns(columnRules6)
+    # puzzle.setRows(rowRules6)
+    # board = BoardStructure(puzzle, None)
+    # boardSolver = BoardLogic(board)
+    # t0 = time.perf_counter_ns()
+    # boardSolver.Solve(VerboseLevel.SILENT, None)
+    # t1 = time.perf_counter_ns()
+    # print(t1-t0)
+    # boardSolver.Print()
 
-    puzzle.setColumns(columnRules10)
-    puzzle.setRows(rowRules10)
-    board = BoardStructure(puzzle, None)
-    boardSolver = BoardLogic(board)
-    t0 = time.perf_counter_ns()
-    boardSolver.Solve(VerboseLevel.SILENT, None)
-    t1 = time.perf_counter_ns()
-    print(t1-t0)
-    boardSolver.Print()
+    # print("BackTracking Algoritm")
+    # puzzle.setColumns(columnRules7)
+    # puzzle.setRows(rowRules7)
+    # board = BoardStructure(puzzle, None)
+    # boardSolver = BoardLogic(board)
+    # t0 = time.perf_counter_ns()
+    # boardSolver.Solve(VerboseLevel.SILENT, None)
+    # t1 = time.perf_counter_ns()
+    # print(t1-t0)
+    # boardSolver.Print()
+
+    # print("BackTracking Algoritm")
+    # puzzle.setColumns(columnRules8)
+    # puzzle.setRows(rowRules8)
+    # board = BoardStructure(puzzle, None)
+    # boardSolver = BoardLogic(board)
+    # t0 = time.perf_counter_ns()
+    # boardSolver.Solve(VerboseLevel.SILENT, None)
+    # t1 = time.perf_counter_ns()
+    # print(t1-t0)
+    # boardSolver.Print()
+
+    # print("BackTracking Algoritm")
+    # puzzle.setColumns(columnRules9)
+    # puzzle.setRows(rowRules9)
+    # board = BoardStructure(puzzle, None)
+    # boardSolver = BoardLogic(board)
+    # t0 = time.perf_counter_ns()
+    # boardSolver.Solve(VerboseLevel.SILENT, None)
+    # t1 = time.perf_counter_ns()
+    # print(t1-t0)
+    # boardSolver.Print()
+
+    # print("BackTracking Algoritm")
+    # puzzle.setColumns(columnRules10)
+    # puzzle.setRows(rowRules10)
+    # board = BoardStructure(puzzle, None)
+    # boardSolver = BoardLogic(board)
+    # t0 = time.perf_counter_ns()
+    # boardSolver.Solve(VerboseLevel.SILENT, None)
+    # t1 = time.perf_counter_ns()
+    # print(t1-t0)
+    # boardSolver.Print()
     
