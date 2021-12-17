@@ -9,4 +9,4 @@ At the start of the program we import the time and the enumerator which are alre
 
 RUNNING THE PROGRAM
 
-Open the Board.py preferebly in VSC and the main method is already set up so the all that needs to be done is to compile and run the program
+Open the Board.py preferebly in VSC and the main method is already set up so the all that needs to be done is to compile and run the program.
