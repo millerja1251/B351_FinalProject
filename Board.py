@@ -1453,31 +1453,6 @@ if __name__ == "__main__":
     #
 
     print("BackTracking Algoritm")
-    puzzle15.setColumns(columnRules21)
-    puzzle15.setRows(rowRules21)
-    board = BoardStructure(puzzle15, None)
-    boardSolver = BoardLogic(board)
-    t0 = time.perf_counter_ns()
-    boardSolver.Solve(VerboseLevel.SILENT, None)
-    t1 = time.perf_counter_ns()
-    backtrackSum += t1-t0
-    print(t1-t0)
-    boardSolver.Print()
-
-    print("Our Algorithm")
-    puzzle15.setColumns(columnRules21)
-    puzzle15.setRows(rowRules21)
-    board1 = BoardStructure(puzzle15, None)
-    boardSolver1 = BoardLogic(board1)
-    t0 = time.perf_counter_ns()
-    boardSolver1.ourAlgorithm()
-    boardSolver1.Solve(VerboseLevel.SILENT, None)
-    t1 = time.perf_counter_ns()
-    ourSum += t1-t0
-    print(t1 - t0)
-    boardSolver1.Print()
-
-    print("BackTracking Algoritm")
     puzzle15.setColumns(columnRules22)
     puzzle15.setRows(rowRules22)
     board = BoardStructure(puzzle15, None)
@@ -1492,56 +1467,6 @@ if __name__ == "__main__":
     print("Our Algorithm")
     puzzle15.setColumns(columnRules22)
     puzzle15.setRows(rowRules22)
-    board1 = BoardStructure(puzzle15, None)
-    boardSolver1 = BoardLogic(board1)
-    t0 = time.perf_counter_ns()
-    boardSolver1.ourAlgorithm()
-    boardSolver1.Solve(VerboseLevel.SILENT, None)
-    t1 = time.perf_counter_ns()
-    ourSum += t1-t0
-    print(t1 - t0)
-    boardSolver1.Print()
-
-    print("BackTracking Algoritm")
-    puzzle15.setColumns(columnRules23)
-    puzzle15.setRows(rowRules23)
-    board = BoardStructure(puzzle15, None)
-    boardSolver = BoardLogic(board)
-    t0 = time.perf_counter_ns()
-    boardSolver.Solve(VerboseLevel.SILENT, None)
-    t1 = time.perf_counter_ns()
-    backtrackSum += t1-t0
-    print(t1-t0)
-    boardSolver.Print()
-
-    print("Our Algorithm")
-    puzzle15.setColumns(columnRules23)
-    puzzle15.setRows(rowRules23)
-    board1 = BoardStructure(puzzle15, None)
-    boardSolver1 = BoardLogic(board1)
-    t0 = time.perf_counter_ns()
-    boardSolver1.ourAlgorithm()
-    boardSolver1.Solve(VerboseLevel.SILENT, None)
-    t1 = time.perf_counter_ns()
-    ourSum += t1-t0
-    print(t1 - t0)
-    boardSolver1.Print()
-
-    print("BackTracking Algoritm")
-    puzzle15.setColumns(columnRules24)
-    puzzle15.setRows(rowRules24)
-    board = BoardStructure(puzzle15, None)
-    boardSolver = BoardLogic(board)
-    t0 = time.perf_counter_ns()
-    boardSolver.Solve(VerboseLevel.SILENT, None)
-    t1 = time.perf_counter_ns()
-    backtrackSum += t1-t0
-    print(t1-t0)
-    boardSolver.Print()
-
-    print("Our Algorithm")
-    puzzle15.setColumns(columnRules24)
-    puzzle15.setRows(rowRules24)
     board1 = BoardStructure(puzzle15, None)
     boardSolver1 = BoardLogic(board1)
     t0 = time.perf_counter_ns()
@@ -1603,56 +1528,6 @@ if __name__ == "__main__":
     boardSolver1.Print()
 
     print("BackTracking Algoritm")
-    puzzle15.setColumns(columnRules27)
-    puzzle15.setRows(rowRules27)
-    board = BoardStructure(puzzle15, None)
-    boardSolver = BoardLogic(board)
-    t0 = time.perf_counter_ns()
-    boardSolver.Solve(VerboseLevel.SILENT, None)
-    t1 = time.perf_counter_ns()
-    backtrackSum += t1-t0
-    print(t1-t0)
-    boardSolver.Print()
-
-    print("Our Algorithm")
-    puzzle15.setColumns(columnRules27)
-    puzzle15.setRows(rowRules27)
-    board1 = BoardStructure(puzzle15, None)
-    boardSolver1 = BoardLogic(board1)
-    t0 = time.perf_counter_ns()
-    boardSolver1.ourAlgorithm()
-    boardSolver1.Solve(VerboseLevel.SILENT, None)
-    t1 = time.perf_counter_ns()
-    ourSum += t1-t0
-    print(t1 - t0)
-    boardSolver1.Print()
-
-    print("BackTracking Algoritm")
-    puzzle15.setColumns(columnRules28)
-    puzzle15.setRows(rowRules28)
-    board = BoardStructure(puzzle15, None)
-    boardSolver = BoardLogic(board)
-    t0 = time.perf_counter_ns()
-    boardSolver.Solve(VerboseLevel.SILENT, None)
-    t1 = time.perf_counter_ns()
-    backtrackSum += t1-t0
-    print(t1-t0)
-    boardSolver.Print()
-
-    print("Our Algorithm")
-    puzzle15.setColumns(columnRules28)
-    puzzle15.setRows(rowRules28)
-    board1 = BoardStructure(puzzle15, None)
-    boardSolver1 = BoardLogic(board1)
-    t0 = time.perf_counter_ns()
-    boardSolver1.ourAlgorithm()
-    boardSolver1.Solve(VerboseLevel.SILENT, None)
-    t1 = time.perf_counter_ns()
-    ourSum += t1-t0
-    print(t1 - t0)
-    boardSolver1.Print()
-
-    print("BackTracking Algoritm")
     puzzle15.setColumns(columnRules29)
     puzzle15.setRows(rowRules29)
     board = BoardStructure(puzzle15, None)
@@ -1667,31 +1542,6 @@ if __name__ == "__main__":
     print("Our Algorithm")
     puzzle15.setColumns(columnRules29)
     puzzle15.setRows(rowRules29)
-    board1 = BoardStructure(puzzle15, None)
-    boardSolver1 = BoardLogic(board1)
-    t0 = time.perf_counter_ns()
-    boardSolver1.ourAlgorithm()
-    boardSolver1.Solve(VerboseLevel.SILENT, None)
-    t1 = time.perf_counter_ns()
-    ourSum += t1-t0
-    print(t1 - t0)
-    boardSolver1.Print()
-
-    print("BackTracking Algoritm")
-    puzzle15.setColumns(columnRules30)
-    puzzle15.setRows(rowRules30)
-    board = BoardStructure(puzzle15, None)
-    boardSolver = BoardLogic(board)
-    t0 = time.perf_counter_ns()
-    boardSolver.Solve(VerboseLevel.SILENT, None)
-    t1 = time.perf_counter_ns()
-    backtrackSum += t1-t0
-    print(t1-t0)
-    boardSolver.Print()
-
-    print("Our Algorithm")
-    puzzle15.setColumns(columnRules30)
-    puzzle15.setRows(rowRules30)
     board1 = BoardStructure(puzzle15, None)
     boardSolver1 = BoardLogic(board1)
     t0 = time.perf_counter_ns()
@@ -1705,8 +1555,8 @@ if __name__ == "__main__":
     #Grab the average of both run times by dividing by 10
     #Print out their average times
     #Reset the sums
-    backtrackSum = backtrackSum/10
-    ourSum = ourSum/10
+    backtrackSum = backtrackSum/4
+    ourSum = ourSum/4
     print("The average of Backtracking was:")
     print(backtrackSum)
     print("The average of our algorithm was:")
