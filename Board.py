@@ -443,11 +443,11 @@ class ActiveLine(Line):
 #
 class BoardPuzzle:
 
-    def __init__(self):
-        self.ColumnCount = 5
-        self.RowCount = 5        
-        self.ColumnRules = [[] for i in range(5)]
-        self.RowRules = [[] for i in range(5)]
+    def __init__(self, multiple):
+        self.ColumnCount = multiple
+        self.RowCount = multiple        
+        self.ColumnRules = [[] for i in range(multiple)]
+        self.RowRules = [[] for i in range(multiple)]
 
     def setColumns(self, list):
         self.ColumnRules = list
@@ -832,7 +832,10 @@ class BoardLogic(BoardStructure):
 
 #Main Function where we run the whole program.
 if __name__ == "__main__":
-    puzzle = BoardPuzzle()
+    puzzle5 = BoardPuzzle(5)
+    puzzle10 = BoardPuzzle(10)
+    puzzle15 = BoardPuzzle(15)
+    puzzle20 = BoardPuzzle(20)
 
     #Creation of all the rules that are pushed into the boards
     columnRules1 = [[1],[1,1],[1,1,1],[1,3],[4]]
@@ -855,6 +858,27 @@ if __name__ == "__main__":
     rowRules9 = [[4],[2],[4],[],[1,1]]
     columnRules10 = [[2,1],[1,1],[3],[2],[1,1]]
     rowRules10 = [[2],[2,1],[1,1,1],[1],[3]]
+
+    columnRules11 = [[1,1],[1,1],[2,2,2],[2,3,1],[2,1,3],[1,1,1,1],[3,1],[4,1],[1,1,1,1],[1,3]]
+    rowRules11 = [[3,1],[5,2],[2],[4,2],[1,2,2],[1,1,1,2],[],[4,1],[1,1,1,3],[2,1]]
+    columnRules12 = [[1,3],[2,3],[2,1,1],[3,1],[1,1,2],[2],[1,2,1,2],[3,2],[4,1],[1,1,1]]
+    rowRules12 = [[3,4],[3,2],[2,4],[2,1,1],[1],[1,3],[3,2,1],[2,3],[1,1,1],[1]]
+    columnRules13 = [[4,3],[1,4,1],[1,3],[3],[2,1,1],[1,2,2],[1,1,1,1,1],[1,1,1],[3,2],[1,1,4]]
+    rowRules13 = [[1,1,1],[1,1],[1,4],[1,2,1],[2,3,1],[2,1],[1,1,3],[2,1],[1,1,3],[4,1,2],[1,2,1,1],[8]]
+    columnRules14
+    rowRules14
+    columnRules15
+    rowRules15
+    columnRules16
+    rowRules16
+    columnRules17
+    rowRules17
+    columnRules18
+    rowRules18
+    columnRules19
+    rowRules19
+    columnRules20
+    rowRules20
 
     #How we track the total sum of time for the backtracking algorithm vs ours
     backtrackSum = 0
