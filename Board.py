@@ -1,13 +1,21 @@
 import time
 from enum import Enum
-import enum
-import copy
 
+#
+# Here we create the state of each cell. Cells will initialize in an unknown state.
+# Void Cells are ones where we know there will not be anything there
+# Filled Cells are ones where we know there is something there 
+#
 class CellState(Enum):
     UNKNOWN = 2
     VOID = 0
     FILLED = 1
 
+#
+# Here we create the Cell objects. Each one contains its own CellState, as well as where it is in the board
+# by giving it a row and column index. We then also make a getter and setter for later parts of the code
+# to be a little simpler.
+#
 class Cell:
 
     def __init__(self, state):
@@ -22,6 +30,12 @@ class Cell:
     def getState(self):
         return self.state
 
+#
+# Here we create the LineRule class. This creates objects which house the rules for each column and row.
+# In this class we make multiple different methods which give us vital information about the lines.
+# Then from those methods, we are able to generate candidate solutions for each line based on its rule.
+# For instance, a line of length 5 and rules: [1,1] would generate 6 candidate solutions.
+#
 class LineRule:
     
     def __init__(self, Rules, LineLength):
@@ -76,9 +90,11 @@ class LineRule:
     def isLegal(self):
         return self.minSpace() <= self.LineLength
     
+    # A line is Trivial if it's empty or if the sum of the rules and gaps is equal to the line length.
     def isTrivial(self):
         return self.isEmpty() or (self.isLegal() and (self.minGaps() == self.maxGaps))
     
+    # Here is how we grab the solution to a line if it is a trivial line.
     def getTrivialSolution(self):
 
         if (not self.isTrivial()):
@@ -134,6 +150,9 @@ class LineRule:
                     break
             return temp
     
+    # GenerateCandidates(), GetGapRules(), GenerateGapStructures(), and GenerateLineFromGapStructures() is how we get our candidate solutions.
+    # These are all the lines which will be considered when being put into the backtracking algorithm for each line.
+
     def GenerateCandidates(self):
         if(self.isTrivial()):
             temp = [self.getTrivialSolution()]
@@ -194,17 +213,20 @@ class LineRule:
         
         return lines
     
+#
+# Here is the Line class. This is where we create the Line objects that house each of the Cell objects for a specific Line.
+#
 class Line:
 
     def __init__(self, determiningNumber, inputOne, inputTwo):
 
         self.Cells = []
 
-        #if it is a list of cells
+        #If it is a list of cells
         if determiningNumber == 1:
             self.Cells = inputOne
 
-        #if it is a length with a cellstate
+        #If it is a length with a cellstate
         elif determiningNumber == 2:
             cellList = []
 
@@ -237,6 +259,7 @@ class Line:
     def Length(self):
         return len(self.Cells)
 
+    # Creates a list of cells with VOID state with length equal to gapSize
     def fillGap(self, gapSize):
         cells = []
 
@@ -245,6 +268,7 @@ class Line:
         
         return cells
     
+    # Creates a list of cells with FILLED state with length equal to blockSize
     def fillBlock(self, blockSize):
         cells = []
 
@@ -277,6 +301,7 @@ class Line:
             
         return lineBlocks
 
+    # Sees whether or not the Line this is applied to is a solution for the ActiveLine that is passed into the method.
     def isCandidateSolutionFor(self, activeLine):
         if(activeLine.Length() != self.Length()):
             raise Exception("Bruh")
@@ -292,7 +317,7 @@ class Line:
         return temp
         
 
-
+    # Sees if the line applied to and the line passed have the same cell states, otherwise sets current cell state at that position to unknown
     def And(self, otherLine):
         if self.Length() != otherLine.Length():
             raise Exception("The Lines don't have same length")
@@ -305,6 +330,7 @@ class Line:
             else:
                 self.Cells[i].setState(CellState.UNKNOWN)
     
+    # How the Line is printed for showing the final board.
     def Print(self):
         lineString = ""
         for cells in self.Cells:
@@ -320,11 +346,18 @@ class Line:
         lineString + "\n"
         print(lineString)
 
-
+#
+# LineType class to see if a line is a row or column
+#
 class LineType(Enum):
     COLUMN = 0
     ROW = 1
 
+#
+# ActiveLine objects combine everything we've previously set up. Takes in Cells which is a Line Object, takes in Rules which is a LineRule Object,
+# Takes in Type which is a LineType object, and takes in an index to see where it is in the board.
+# Also takes in CopySource, if it is meant to be copying another ActiveLine into a new ActiveLine object.
+#
 class ActiveLine(Line):
     def __init__(self, Cells, Rules, Type, Index, CopySource):
         if(CopySource == None):
@@ -352,6 +385,7 @@ class ActiveLine(Line):
     def Length(self):
         return len(self.Cells)
     
+    # As said earlier, the candidate solutions start as all possible solutions to a line based on its rules
     def CandidateCount(self):
         return len(self.CandidateSolutions)
 
@@ -370,6 +404,7 @@ class ActiveLine(Line):
     def isSolved(self):
         return self.Rules.checkSolution(self)
     
+    # Reviews which candidates are potentially solutions for the given ActiveLine, and returns them while filtering out any that are not.
     def ReviewCandidates(self):
         temp = []
         for i in self.CandidateSolutions:
@@ -378,6 +413,7 @@ class ActiveLine(Line):
         
         self.CandidateSolutions = temp       
 
+    # Returns a Line object that looks at each candidateSolution and sees which ones are determinable.
     def GetDeterminableCells(self):
         if (not self.isValid()):
             return Line(2, self.Length(), CellState.UNKNOWN)
@@ -388,6 +424,7 @@ class ActiveLine(Line):
 
         return determinableCells
     
+    # Makes the line the method is applied to into the line which is being passed in, then reviews their candidates
     def ApplyLine(self, line):
         if(line.Length() != self.Length()):
             raise ValueError("Lines must be of the same length")
@@ -400,6 +437,10 @@ class ActiveLine(Line):
         self.skipReview = False
         self.ReviewCandidates()
 
+#
+# Most basic form of the structure for the full board. When called it will create an empty 5x5 board.
+# We can then manually what is in the board using the set methods.
+#
 class BoardPuzzle:
 
     def __init__(self):
@@ -420,7 +461,12 @@ class BoardPuzzle:
     def getColumns(self):
         return self.ColumnRules      
         
-
+#
+# The BoardStructure is where we pass in the BoardPuzzle object, and create the actual board.
+# The BoardStructure object contains the amount of columns and rows, a matrix which contains all of the cell objects,
+# and three different ActiveLine lists in order to properly manipulate each row and column individually.
+# It also takes in a copy source for the use of the backtracking Solve()
+#
 class BoardStructure:
 
     def __init__(self, puzzle, copySource):
@@ -474,6 +520,8 @@ class BoardStructure:
                 otherCell = source.board.Matrix[rowIndex][columnIndex]
                 self.Matrix[rowIndex][columnIndex].setState(otherCell.getState())
 
+    # GatherColumns(), GatherRows(), CopyColumns(), and CopyRows() are all meant to create lists of their respective ActiveLine types.
+
     def GatherColumns(self):
         columns = []
 
@@ -524,6 +572,7 @@ class BoardStructure:
         
         return rows
 
+    # This method sets the line's solution, once it has been properly figured out by the algorithms.
     def SetLineSolution(self, lineType, lineIndex, candidateToSet):
         targetSet = self.Columns
         if(lineType == LineType.ROW):
@@ -537,7 +586,11 @@ class BoardStructure:
         
         target.ApplyLine(candidateToSet)
 
-
+#
+# SpeculativeCallContext and VerboseLevel are both helper classes made for the backtracking algorithm.
+# Each of these were included in Raphael's original usage, which he programed for an online game,
+# and are still needed in order to make the program run properly.
+#
 class SpeculativeCallContext:
     global depth
     global optionIndex
@@ -548,11 +601,18 @@ class VerboseLevel(Enum):
     STARTDECLARATION = 1
     STEPBYSTEP = 2
 
+#
+# The BoardLogic object takes in a BoardStructure object, and now makes it possible for us to use various methods on it.
+# The big methods used on it are of course ourAlgorithm() and Solve() which represent our own method for solving, and
+# the backtracking method for solving.
+#
 class BoardLogic(BoardStructure):
 
     def __init__(self, board):
         self.board = board
 
+    # IsValid(), IsSet(), and IsSolved() run through all the rows and columns of the board to make sure that everything is correct.
+    # These are mostly used for the backtracking algorithm as it needs them in order to see when to stop.
     def IsValid(self):
         for i in self.board.ActiveLines:
             if i.isValid() == False:
@@ -570,23 +630,30 @@ class BoardLogic(BoardStructure):
             if i.isSolved() == False:
                 return False
         return True
-        
+
+    # This is the backtracking algorithm that we are using.  
     def Solve(self, verboseLevel, context):
         if(not self.IsValid()):
             if(verboseLevel != VerboseLevel.SILENT):
                 return
         
+        # On the first run around, the Context will be None, therefore it will set whatever cells are possible to be said are filled or void
         if(context == None):
             self.SetDeterminableCells()
 
+        # It will then see which lines only have 1 CandidateSolution, and set them equal to their CandidateSolution
         self.CandidateExlclusionSolve(verboseLevel)
 
-        if(self.IsValid() and not self.IsSolved()):         
+        # Board must be valid and not solved in order for the algorithm to process everything it needs to.
+        if(self.IsValid() and not self.IsSolved()):        
+
+            #Grab all lines that have at least one UNKNOWN CellState 
             undeterminedLines = []
             for i in self.board.ActiveLines:
                 if i.isSet() == False:
                     undeterminedLines.append(i)
 
+            #Grab the undeterminedLine with the least number of CandidateSolutions
             speculationTarget = undeterminedLines[0]  
             for i in undeterminedLines:
                 if speculationTarget.CandidateCount() >  i.CandidateCount():
@@ -595,10 +662,12 @@ class BoardLogic(BoardStructure):
             candidateSolutions = speculationTarget.CandidateSolutions
             candidatesCount = len(candidateSolutions)
 
+            # Create a new board which will take in the old board and set the lines of the board based on the SpeculationTarget
             for i in range(candidatesCount):
                 speculativeBoard = BoardLogic(BoardStructure(None, self.board))
                 speculativeBoard.board.SetLineSolution(speculationTarget.Type, speculationTarget.Index, candidateSolutions[i])
 
+                #Method to track how many times we have recursed through the board
                 speculativeContext = SpeculativeCallContext()
                 if(context == None):
                     context = speculativeContext
@@ -608,7 +677,10 @@ class BoardLogic(BoardStructure):
                 speculativeContext.optionIndex = i
                 speculativeContext.optionsCount = candidatesCount
                 
+                #Recursive Call
                 speculativeBoard.Solve(verboseLevel, speculativeContext)
+
+                #Board is assumed to be correct if it can pass this if statement
                 if(speculativeBoard.IsValid() and speculativeBoard.IsSolved()):
                     self.board.Copy(speculativeBoard)
                     return
@@ -627,15 +699,20 @@ class BoardLogic(BoardStructure):
             selectedLine.ApplyLine(selectedLine.CandidateSolutions[0])
             solvableLines.pop(0)
 
-    
+    #Print out the board
     def Print(self):
         for row in self.board.Rows:
             row.Print()
 
+
+    #Our Algorithm using the mathematical approach.
     def ourAlgorithm(self):
             for activeLines in self.board.Columns:
+                #Start with columns, see if the line is Trivial, and if it is then set it to its trivial solution
                 if(activeLines.Rules.isTrivial()):
                     activeLines.Cells = activeLines.Rules.getTrivialSolution().Cells
+
+                #If not then run through the Mathematical Approach on the line
                 else:    
                     rules = activeLines.Rules.Rules
                     addedRule = 0
@@ -668,8 +745,10 @@ class BoardLogic(BoardStructure):
                             cellIndex += rule + 1
 
             for activeLines in self.board.Rows:
+                #See if lines in the rows are trivial, if they are then set their trivial solution
                 if(activeLines.Rules.isTrivial()):
                     activeLines.Cells = activeLines.Rules.getTrivialSolution().Cells
+                #If not trivial then run through the mathemtaical approach on the line
                 else:    
                     rules = activeLines.Rules.Rules
                     addedRule = 0
@@ -713,6 +792,8 @@ class BoardLogic(BoardStructure):
                         else:
                             cellIndex += rule + 1
 
+            #After running through the mathematical approach on the rows and columns, it will see if there's any spaces in the rows
+            #or columns that it can definitively say are going to be FILLED or VOID based on the rules.
             for activeLines in self.board.Columns:
                 
                 fillAmount = 0
@@ -749,9 +830,11 @@ class BoardLogic(BoardStructure):
                         if cell.getState() == CellState.UNKNOWN:
                             cell.setState(CellState.VOID)
 
-
+#Main Function where we run the whole program.
 if __name__ == "__main__":
     puzzle = BoardPuzzle()
+
+    #Creation of all the rules that are pushed into the boards
     columnRules1 = [[1],[1,1],[1,1,1],[1,3],[4]]
     rowRules1 = [[2],[1,1],[3],[1,2],[4]]
     columnRules2 = [[],[3],[3],[3],[]]
@@ -773,8 +856,18 @@ if __name__ == "__main__":
     columnRules10 = [[2,1],[1,1],[3],[2],[1,1]]
     rowRules10 = [[2],[2,1],[1,1,1],[1],[3]]
 
+    #How we track the total sum of time for the backtracking algorithm vs ours
     backtrackSum = 0
     ourSum = 0
+
+    #Set the columns and rows equal to the correct set of rules
+    #Create and BoardStructure then a BoardLogic object
+    #Grab the current time
+    #Solve with backtracking or ouralgorithm
+    #Grab the current time
+    #Subtract the two times and add it to our sum for the correct algorithm
+    #Print the time
+    #Print the completed board
 
     print("BackTracking Algoritm")
     puzzle.setColumns(columnRules1)
@@ -1026,6 +1119,8 @@ if __name__ == "__main__":
     print(t1 - t0)
     boardSolver1.Print()
     
+    #Grab the average of both run times by dividing by 10
+    #Print out their average times
     backtrackSum = backtrackSum/10
     ourSum = ourSum/10
     print("The average of Backtracking was:")
